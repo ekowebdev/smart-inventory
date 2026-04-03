@@ -1,6 +1,6 @@
 # AI Usage Report (AI_NOTES.md)
 
-Dokumen ini mencatat penggunaan kecerdasan buatan dalam pengembangan **Smart Inventory Core System v1.1**.
+Dokumen ini mencatat penggunaan AI dalam pengembangan **Smart Inventory Core System v1.1**.
 
 ## 🛠️ AI Tools Used
 - **Antigravity (by Google DeepMind)**: Digunakan sebagai asisten utama untuk perancangan arsitektur, penulisan kode backend (Go), pengembangan UI (React), dan orkestrasi alur kerja Git.
