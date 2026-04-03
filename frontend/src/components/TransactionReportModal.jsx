@@ -40,27 +40,64 @@ function TransactionReportModal({ transaction, onClose }) {
             <span style={{ fontWeight: '600', fontSize: '0.9rem' }}>Official Stock Report</span>
           </div>
           <div style={{ display: 'flex', gap: '10px' }}>
-            <button className="premium-button" style={{ 
-              background: '#fff', 
-              color: '#334155', 
-              border: '1px solid #e2e8f0', 
-              boxShadow: 'none',
-              padding: '6px 12px',
-              fontSize: '0.8rem'
-            }}>
+            <button 
+              onClick={() => window.print()}
+              className="premium-button print-hide" 
+              style={{ 
+                background: '#fff', 
+                color: '#334155', 
+                border: '1px solid #e2e8f0', 
+                boxShadow: 'none',
+                padding: '6px 12px',
+                fontSize: '0.8rem'
+              }}
+            >
               <Printer size={14} /> Print
             </button>
-            <button onClick={onClose} style={{ 
-              background: 'none', 
-              border: 'none', 
-              cursor: 'pointer', 
-              color: '#94a3b8',
-              padding: '4px'
-            }}>
+            <button 
+              onClick={onClose} 
+              className="print-hide"
+              style={{ 
+                background: 'none', 
+                border: 'none', 
+                cursor: 'pointer', 
+                color: '#94a3b8',
+                padding: '4px'
+              }}
+            >
               <X size={20} />
             </button>
           </div>
         </div>
+
+        {/* Print Styles */}
+        <style>
+          {`
+            @media print {
+              body * {
+                visibility: hidden;
+              }
+              .report-modal, .report-modal * {
+                visibility: visible;
+              }
+              .report-modal {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                box-shadow: none !important;
+                border: none !important;
+              }
+              .print-hide {
+                display: none !important;
+              }
+              .modal-overlay {
+                background: none !important;
+                backdrop-filter: none !important;
+              }
+            }
+          `}
+        </style>
 
         {/* Report Content */}
         <div style={{ padding: '2.5rem', maxHeight: '80vh', overflowY: 'auto' }}>
