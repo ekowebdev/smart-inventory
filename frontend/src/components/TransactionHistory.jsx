@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Clock, CheckCircle, XCircle, Play, Filter } from 'lucide-react';
 import { useInventoryStore } from '../store/useInventoryStore';
 import StatusUpdateModal from './StatusUpdateModal';
+import TransactionReportModal from './TransactionReportModal';
+import { Eye } from 'lucide-react';
 
 function TransactionHistory() {
   const { transactions, fetchTransactions } = useInventoryStore();
   const [selectedTx, setSelectedTx] = useState(null);
   const [targetStatus, setTargetStatus] = useState(null);
+  const [reportTx, setReportTx] = useState(null);
   const [typeFilter, setTypeFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
 
@@ -123,7 +126,15 @@ function TransactionHistory() {
                         </button>
                       </>
                     )}
-                    {tx.status === 'DONE' && <span style={{ fontSize: '0.7rem', fontWeight: '700', color: 'var(--text-muted)' }}>TRANSACTION LOCKED</span>}
+                    {tx.status === 'DONE' && (
+                      <button 
+                        onClick={() => setReportTx(tx)} 
+                        className="premium-button" 
+                        style={{ fontSize: '0.7rem', padding: '4px 10px', background: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa', boxShadow: 'none' }}
+                      >
+                        <Eye size={12} /> View Report
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -137,6 +148,13 @@ function TransactionHistory() {
           transaction={selectedTx} 
           nextStatus={targetStatus} 
           onClose={() => { setSelectedTx(null); setTargetStatus(null); }} 
+        />
+      )}
+
+      {reportTx && (
+        <TransactionReportModal 
+          transaction={reportTx} 
+          onClose={() => setReportTx(null)} 
         />
       )}
     </div>

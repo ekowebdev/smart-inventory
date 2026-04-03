@@ -24,7 +24,7 @@ func NewTransactionRepository(db *gorm.DB) TransactionRepository {
 
 func (r *transactionRepository) GetAll(txType string, status string) ([]models.Transaction, error) {
 	var transactions []models.Transaction
-	query := r.db.Preload("Item")
+	query := r.db.Preload("Item").Preload("Logs")
 	if txType != "" {
 		query = query.Where("type = ?", txType)
 	}

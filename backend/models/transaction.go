@@ -32,4 +32,5 @@ type Transaction struct {
 	Quantity    int            `gorm:"not null" json:"quantity"`
 	ReferenceID string         `gorm:"type:varchar(100)" json:"reference_id"` // Customer or Supplier Name
 	Notes       string         `gorm:"type:text" json:"notes"`
+	Logs        []TransactionLog `gorm:"foreignKey:TransactionID" json:"logs"`
 }
