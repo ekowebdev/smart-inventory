@@ -106,33 +106,50 @@ function TransactionHistory() {
                 </td>
                 <td style={{ textAlign: 'right' }}>
                   <div className="flex-center" style={{ justifyContent: 'flex-end', gap: '8px' }}>
-                    {(tx.status === 'CREATED' || tx.status === 'DRAFT') && (
+                    {/* Stock In Workflow: CREATED -> IN_PROGRESS -> DONE */}
+                    {tx.type === 'STOCK_IN' && tx.status === 'CREATED' && (
                       <>
-                        <button onClick={() => openUpdateModal(tx, 'IN_PROGRESS')} className="premium-button" style={{ fontSize: '0.7rem', padding: '4px 10px', background: 'rgba(245, 158, 11, 0.15)', color: 'var(--accent-warning)', boxShadow: 'none' }}>
-                          <Play size={12} /> Start
+                        <button onClick={() => openUpdateModal(tx, 'IN_PROGRESS')} className="premium-button" style={{ fontSize: '0.7rem', padding: '4px 10px', background: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa', boxShadow: 'none' }}>
+                          <Play size={12} /> Start Receiving
                         </button>
                         <button onClick={() => openUpdateModal(tx, 'CANCELLED')} className="premium-button" style={{ fontSize: '0.7rem', padding: '4px 10px', background: 'rgba(239, 68, 68, 0.15)', color: 'var(--accent-error)', boxShadow: 'none' }}>
                           <XCircle size={12} /> Cancel
                         </button>
                       </>
                     )}
-                    {tx.status === 'IN_PROGRESS' && (
+
+                    {/* Stock Out Workflow: DRAFT -> IN_PROGRESS -> DONE */}
+                    {tx.type === 'STOCK_OUT' && tx.status === 'DRAFT' && (
                       <>
-                        <button onClick={() => openUpdateModal(tx, 'DONE')} className="premium-button" style={{ fontSize: '0.7rem', padding: '4px 10px', background: 'rgba(16, 185, 129, 0.15)', color: 'var(--accent-success)', boxShadow: 'none' }}>
-                          <CheckCircle size={12} /> Complete
+                        <button onClick={() => openUpdateModal(tx, 'IN_PROGRESS')} className="premium-button" style={{ fontSize: '0.7rem', padding: '4px 10px', background: 'rgba(245, 158, 11, 0.15)', color: 'var(--accent-warning)', boxShadow: 'none' }}>
+                          <Package size={12} /> Start Packing
                         </button>
                         <button onClick={() => openUpdateModal(tx, 'CANCELLED')} className="premium-button" style={{ fontSize: '0.7rem', padding: '4px 10px', background: 'rgba(239, 68, 68, 0.15)', color: 'var(--accent-error)', boxShadow: 'none' }}>
-                          <XCircle size={12} /> Rollback
+                          <XCircle size={12} /> Cancel
                         </button>
                       </>
                     )}
+
+                    {/* In Progress to Done for both */}
+                    {tx.status === 'IN_PROGRESS' && (
+                      <>
+                        <button onClick={() => openUpdateModal(tx, 'DONE')} className="premium-button" style={{ fontSize: '0.7rem', padding: '4px 10px', background: 'rgba(16, 185, 129, 0.15)', color: 'var(--accent-success)', boxShadow: 'none' }}>
+                          <CheckCircle size={12} /> {tx.type === 'STOCK_IN' ? 'Confirm Delivery' : 'Confirm Dispatch'}
+                        </button>
+                        <button onClick={() => openUpdateModal(tx, 'CANCELLED')} className="premium-button" style={{ fontSize: '0.7rem', padding: '4px 10px', background: 'rgba(239, 68, 68, 0.15)', color: 'var(--accent-error)', boxShadow: 'none' }}>
+                          <XCircle size={12} /> {tx.type === 'STOCK_OUT' ? 'Rollback' : 'Reject'}
+                        </button>
+                      </>
+                    )}
+
+                    {/* Report for DONE */}
                     {tx.status === 'DONE' && (
                       <button 
                         onClick={() => setReportTx(tx)} 
                         className="premium-button" 
-                        style={{ fontSize: '0.7rem', padding: '4px 10px', background: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa', boxShadow: 'none' }}
+                        style={{ fontSize: '0.7rem', padding: '4px 10px', background: 'rgba(30, 41, 59, 0.4)', color: 'var(--text-muted)', border: '1px solid var(--border)', boxShadow: 'none' }}
                       >
-                        <Eye size={12} /> View Report
+                        <Eye size={12} /> View Official Report
                       </button>
                     )}
                   </div>

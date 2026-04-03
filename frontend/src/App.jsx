@@ -39,7 +39,7 @@ function App() {
           <Search size={18} className="search-icon" />
           <input 
             type="text" 
-            placeholder="Search SKU or name..." 
+            placeholder="Search by Name, SKU, or Customer..." 
             className="search-input"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}

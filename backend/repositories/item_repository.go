@@ -24,9 +24,11 @@ func NewItemRepository(db *gorm.DB) ItemRepository {
 
 func (r *itemRepository) GetAll(filter string) ([]models.Item, error) {
 	var items []models.Item
-	query := r.db
+	query := r.db.Model(&models.Item{})
 	if filter != "" {
-		query = query.Where("name ILIKE ? OR sku ILIKE ? OR category ILIKE ?", "%"+filter+"%", "%"+filter+"%", "%"+filter+"%")
+		// Filter by Name, SKU, Category, OR Customer/Reference from Transactions
+		query = query.Where("items.name ILIKE ? OR items.sku ILIKE ? OR items.category ILIKE ? OR items.id IN (SELECT item_id FROM transactions WHERE reference_id ILIKE ?)", 
+			"%"+filter+"%", "%"+filter+"%", "%"+filter+"%", "%"+filter+"%")
 	}
 	err := query.Find(&items).Error
 	return items, err

@@ -8,13 +8,12 @@ import DeleteConfirmModal from './DeleteConfirmModal';
 
 
 function InventoryList() {
-  const { items } = useInventoryStore();
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [modalType, setModalType] = useState(null);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState(null);
-  const [deletingItem, setDeletingItem] = useState(null);
-
+  const { items, fetchItems } = useInventoryStore();
+  const [selectedItem, setSelectedItem] = React.useState(null);
+  const [modalType, setModalType] = React.useState(null);
+  const [isAddModalOpen, setIsAddModalOpen] = React.useState(false);
+  const [editingItem, setEditingItem] = React.useState(null);
+  const [deletingItem, setDeletingItem] = React.useState(null);
 
   const openModal = (item, type) => {
     setSelectedItem(item);
@@ -26,7 +25,6 @@ function InventoryList() {
       <div className="flex-between" style={{ padding: '1.5rem', borderBottom: '1px solid var(--border)' }}>
         <h3 style={{ fontSize: '1.25rem', fontWeight: '700' }}>Inventory Assets</h3>
         <button className="premium-button" onClick={() => setIsAddModalOpen(true)}>
-
           <Plus size={18} />
           Add New SKU
         </button>
