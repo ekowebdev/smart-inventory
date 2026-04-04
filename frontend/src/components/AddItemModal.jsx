@@ -21,11 +21,11 @@ function AddItemModal({ onClose }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const data = { 
-        ...formData, 
-        price: parseFloat(formData.price),
-        physical_stock: parseInt(formData.physical_stock),
-        available_stock: parseInt(formData.physical_stock) 
+    const data = {
+      ...formData,
+      price: parseFloat(formData.price),
+      physical_stock: parseInt(formData.physical_stock),
+      available_stock: parseInt(formData.physical_stock)
     };
     const success = await createItem(data);
     if (success) {
@@ -52,73 +52,73 @@ function AddItemModal({ onClose }) {
           <div className="form-grid cols-2">
             <div className="form-field">
               <label className="form-label">Item Name</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 className={`input-standard ${errors.name ? 'input-error' : ''}`}
                 placeholder="e.g. MacBook Pro M3"
                 value={formData.name}
-                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               />
               {errors.name && <span className="error-text">{errors.name}</span>}
             </div>
             <div className="form-field">
               <label className="form-label">SKU Code</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 className={`input-standard ${errors.sku ? 'input-error' : ''}`}
                 placeholder="e.g. LAP-MBP-001"
                 value={formData.sku}
-                onChange={(e) => setFormData({...formData, sku: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
               />
               {errors.sku && <span className="error-text">{errors.sku}</span>}
             </div>
             <div className="form-field">
               <label className="form-label">Category</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 className={`input-standard ${errors.category ? 'input-error' : ''}`}
                 placeholder="Electronics"
                 value={formData.category}
-                onChange={(e) => setFormData({...formData, category: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
               />
               {errors.category && <span className="error-text">{errors.category}</span>}
             </div>
             <div className="form-field">
               <label className="form-label">Initial Physical Stock</label>
-              <input 
-                type="number" 
-                className="input-standard" 
+              <input
+                type="number"
+                className="input-standard"
                 value={formData.physical_stock}
-                onChange={(e) => setFormData({...formData, physical_stock: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, physical_stock: e.target.value })}
               />
             </div>
             <div className="form-field" style={{ gridColumn: 'span 2' }}>
               <label className="form-label">Price / Unit (USD)</label>
-              <input 
-                type="number" 
-                step="0.01"
-                className={`input-standard ${errors.price ? 'input-error' : ''}`} 
+              <input
+                type="number"
+                step="0"
+                className={`input-standard ${errors.price ? 'input-error' : ''}`}
                 value={formData.price}
-                onChange={(e) => setFormData({...formData, price: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
               />
               {errors.price && <span className="error-text">{errors.price}</span>}
             </div>
             <div className="form-field" style={{ gridColumn: 'span 2' }}>
               <label className="form-label">Short Description</label>
-              <textarea 
-                className="input-standard" 
+              <textarea
+                className="input-standard"
                 style={{ minHeight: '80px', resize: 'none' }}
                 placeholder="Enter technical details..."
                 value={formData.description}
-                onChange={(e) => setFormData({...formData, description: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               />
             </div>
           </div>
 
           <div style={{ marginTop: '2rem' }}>
-            <button 
-              type="submit" 
-              className="premium-button" 
+            <button
+              type="submit"
+              className="premium-button"
               style={{ width: '100%', justifyContent: 'center', padding: '16px', borderRadius: '12px' }}
               disabled={loading}
             >

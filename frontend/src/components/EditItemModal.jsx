@@ -97,7 +97,7 @@ function EditItemModal({ item, onClose }) {
                 <label className="form-label">Price / Unit (USD)</label>
                 <input
                   type="number"
-                  step="0.01"
+                  step="0"
                   className={`input-standard ${errors.price ? 'input-error' : ''}`}
                   value={formData.price}
                   onChange={(e) => setFormData({ ...formData, price: e.target.value })}
