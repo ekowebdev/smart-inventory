@@ -7,8 +7,13 @@ import EditItemModal from './EditItemModal';
 import DeleteConfirmModal from './DeleteConfirmModal';
 
 
-function InventoryList() {
+function InventoryList({ searchFilter = '' }) {
   const { items, fetchItems } = useInventoryStore();
+
+  const filteredItems = items.filter(item => 
+    item.name.toLowerCase().includes(searchFilter.toLowerCase()) ||
+    item.sku.toLowerCase().includes(searchFilter.toLowerCase())
+  );
   const [selectedItem, setSelectedItem] = React.useState(null);
   const [modalType, setModalType] = React.useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = React.useState(false);
@@ -42,13 +47,13 @@ function InventoryList() {
             </tr>
           </thead>
           <tbody>
-            {items.length === 0 ? (
+            {filteredItems.length === 0 ? (
               <tr>
                 <td colSpan="5" style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
-                  No items found. Add a new SKU to get started.
+                  No items found. Adjust your search or add a new SKU.
                 </td>
               </tr>
-            ) : items.map((item) => (
+            ) : filteredItems.map((item) => (
               <tr key={item.id}>
                 <td>
                   <div style={{ display: 'flex', flexDirection: 'column' }}>

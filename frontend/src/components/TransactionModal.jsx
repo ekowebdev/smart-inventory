@@ -2,25 +2,36 @@ import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import { X, Send, AlertTriangle, CheckCircle } from 'lucide-react';
 import { useInventoryStore } from '../store/useInventoryStore';
+import { useEffect } from 'react';
 
 function TransactionModal({ item, type, onClose }) {
-  const { createStockIn, createStockOut, loading } = useInventoryStore();
+  const { createStockIn, createStockOut, loading, errors, clearErrors } = useInventoryStore();
   const [qty, setQty] = useState(1);
   const [refID, setRefID] = useState('');
   const [notes, setNotes] = useState('');
   const [status, setStatus] = useState('idle'); // idle, success, error
 
+  useEffect(() => {
+    clearErrors();
+  }, [clearErrors]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const data = { item_id: item.id, quantity: parseInt(qty), reference_id: refID, notes };
+      let success = false;
       if (type === 'IN') {
-        await createStockIn(data);
+        success = await createStockIn(data);
       } else {
-        await createStockOut(data);
+        success = await createStockOut(data);
       }
-      setStatus('success');
-      setTimeout(onClose, 1500);
+      
+      if (success) {
+        setStatus('success');
+        setTimeout(onClose, 1500);
+      } else {
+        setStatus('error');
+      }
     } catch (err) {
       setStatus('error');
     }
@@ -56,60 +67,61 @@ function TransactionModal({ item, type, onClose }) {
           </button>
         </header>
 
-        <form onSubmit={handleSubmit} className="modal-body">
-          <div style={{ marginBottom: '1.5rem', padding: '1rem', background: 'rgba(15, 23, 42, 0.4)', borderRadius: '12px', border: '1px solid var(--border)' }}>
-            <div className="flex-between">
-              <div>
-                <p style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Target Asset</p>
-                <h4 style={{ fontSize: '1.1rem', fontWeight: '700' }}>{item.name}</h4>
-                <p style={{ fontSize: '0.7rem', color: 'var(--primary)', fontFamily: 'monospace' }}>{item.sku}</p>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+          <div className="modal-body">
+            <div style={{ marginBottom: '1.5rem', padding: '1rem', background: 'rgba(15, 23, 42, 0.4)', borderRadius: '12px', border: '1px solid var(--border)' }}>
+              <div className="flex-between">
+                <div>
+                  <p style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Target Asset</p>
+                  <h4 style={{ fontSize: '1.1rem', fontWeight: '700' }}>{item.name}</h4>
+                  <p style={{ fontSize: '0.7rem', color: 'var(--primary)', fontFamily: 'monospace' }}>{item.sku}</p>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Avail: {item.available_stock} {type === 'OUT' ? 'Units' : ''}</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Phys: {item.physical_stock} Units</p>
+                </div>
               </div>
-              <div style={{ textAlign: 'right' }}>
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Avail: {item.available_stock} {type === 'OUT' ? 'Units' : ''}</p>
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Phys: {item.physical_stock} Units</p>
+            </div>
+
+            <div className="form-grid">
+              <div className="form-field">
+                <label className="form-label">Quantity to {type === 'IN' ? 'Receive' : 'Allocate'}</label>
+                <input 
+                  type="number" 
+                  className={`input-standard ${errors.quantity ? 'input-error' : ''}`} 
+                  style={{ fontSize: '1.2rem', fontWeight: '800', textAlign: 'center' }}
+                  value={qty} 
+                  onChange={(e) => setQty(e.target.value)} 
+                />
+                {errors.quantity && <span className="error-text" style={{ textAlign: 'center' }}>{errors.quantity}</span>}
+              </div>
+
+              <div className="form-field">
+                <label className="form-label">{type === 'IN' ? 'Supplier / Source' : 'Recipient / Customer'}</label>
+                <input 
+                  type="text" 
+                  className={`input-standard ${errors.reference_id || errors.item_id ? 'input-error' : ''}`} 
+                  placeholder="e.g. Warehouse A / John Doe" 
+                  value={refID} 
+                  onChange={(e) => setRefID(e.target.value)} 
+                />
+                {(errors.reference_id || errors.item_id) && <span className="error-text">{errors.reference_id || errors.item_id}</span>}
+              </div>
+
+              <div className="form-field">
+                <label className="form-label">Internal Notes</label>
+                <textarea 
+                  className="input-standard" 
+                  style={{ minHeight: '60px', resize: 'none' }}
+                  placeholder="Reason for movement..." 
+                  value={notes} 
+                  onChange={(e) => setNotes(e.target.value)} 
+                />
               </div>
             </div>
           </div>
 
-          <div className="form-grid">
-            <div className="form-field">
-              <label className="form-label">Quantity to {type === 'IN' ? 'Receive' : 'Allocate'}</label>
-              <input 
-                type="number" 
-                className="input-standard" 
-                min="1" 
-                style={{ fontSize: '1.2rem', fontWeight: '800', textAlign: 'center' }}
-                value={qty} 
-                onChange={(e) => setQty(e.target.value)} 
-                required
-              />
-            </div>
-
-            <div className="form-field">
-              <label className="form-label">{type === 'IN' ? 'Supplier / Source' : 'Recipient / Customer'}</label>
-              <input 
-                type="text" 
-                className="input-standard" 
-                placeholder="e.g. Warehouse A / John Doe" 
-                value={refID} 
-                onChange={(e) => setRefID(e.target.value)} 
-                required 
-              />
-            </div>
-
-            <div className="form-field">
-              <label className="form-label">Internal Notes</label>
-              <textarea 
-                className="input-standard" 
-                style={{ minHeight: '60px', resize: 'none' }}
-                placeholder="Reason for movement..." 
-                value={notes} 
-                onChange={(e) => setNotes(e.target.value)} 
-              />
-            </div>
-          </div>
-
-          <div style={{ marginTop: '2rem' }}>
+          <div className="modal-footer">
             <button 
               type="submit" 
               className="premium-button" 

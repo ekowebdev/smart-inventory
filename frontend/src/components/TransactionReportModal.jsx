@@ -1,6 +1,6 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { X, Printer, Download, FileText, CheckCircle, Package, User, Calendar, ClipboardList } from 'lucide-react';
+import { X, Printer, FileText, CheckCircle, Package, Calendar, ClipboardList } from 'lucide-react';
 
 function TransactionReportModal({ transaction, onClose }) {
   if (!transaction) return null;
@@ -17,197 +17,288 @@ function TransactionReportModal({ transaction, onClose }) {
 
   return createPortal(
     <div className="modal-overlay" style={{ backdropFilter: 'blur(12px)' }}>
-      <div className="modal-content report-modal" style={{ 
-        maxWidth: '700px', 
-        background: '#fff', 
+      <div className="modal-container report-modal animate-fade-in" style={{
+        maxWidth: '740px',
+        background: '#ffffff',
         color: '#1e293b',
-        padding: '0',
-        borderRadius: '16px',
-        overflow: 'hidden',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
+        border: 'none'
       }}>
         {/* Header - Action Bar */}
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
-          padding: '1rem 1.5rem', 
+        <header className="modal-header print-hide" style={{
           background: '#f8fafc',
-          borderBottom: '1px solid #e2e8f0'
+          borderBottom: '1px solid #e2e8f0',
+          padding: '1.25rem 2rem'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b' }}>
-            <FileText size={18} />
-            <span style={{ fontWeight: '600', fontSize: '0.9rem' }}>Official Stock Report</span>
+          <div className="flex-center">
+            <div style={{ padding: '8px', background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', borderRadius: '8px' }}>
+              <FileText size={18} />
+            </div>
+            <div>
+              <h3 style={{ fontSize: '1rem', fontWeight: '800', color: '#334155', margin: 0 }}>Official Stock Report</h3>
+              <p style={{ margin: 0, fontSize: '0.65rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Audit-Ready Document</p>
+            </div>
           </div>
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button 
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            <button
               onClick={() => window.print()}
-              className="premium-button print-hide" 
-              style={{ 
-                background: '#fff', 
-                color: '#334155', 
-                border: '1px solid #e2e8f0', 
-                boxShadow: 'none',
-                padding: '6px 12px',
+              className="premium-button print-hide"
+              style={{
+                background: '#fff',
+                color: '#334155',
+                border: '1px solid #e2e8f0',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+                padding: '8px 16px',
                 fontSize: '0.8rem'
               }}
             >
-              <Printer size={14} /> Print
+              <Printer size={14} /> Print Report
             </button>
-            <button 
-              onClick={onClose} 
+            <button
+              onClick={onClose}
               className="print-hide"
-              style={{ 
-                background: 'none', 
-                border: 'none', 
-                cursor: 'pointer', 
-                color: '#94a3b8',
-                padding: '4px'
+              style={{
+                background: 'rgba(0,0,0,0.05)',
+                border: 'none',
+                cursor: 'pointer',
+                color: '#64748b',
+                padding: '8px',
+                borderRadius: '50%',
+                display: 'flex',
+                transition: 'all 0.2s'
               }}
             >
               <X size={20} />
             </button>
           </div>
-        </div>
+        </header>
 
         {/* Print Styles */}
         <style>
           {`
             @media print {
-              body * {
-                visibility: hidden;
+              /* Hide the main app root and any other overlays */
+              #root, 
+              .modal-overlay:not(:has(.report-modal)) {
+                display: none !important;
               }
-              .report-modal, .report-modal * {
-                visibility: visible;
+
+              body, html {
+                background: white !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                height: auto !important;
               }
+
+              /* The overlay itself should not behave like a modal anymore */
+              .modal-overlay {
+                position: relative !important;
+                display: block !important;
+                background: white !important;
+                backdrop-filter: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+                height: auto !important;
+                z-index: auto !important;
+              }
+
               .report-modal {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
+                position: static !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
                 box-shadow: none !important;
                 border: none !important;
+                max-height: none !important;
+                display: flex !important;
+                flex-direction: column !important;
+                background: white !important;
+                color: black !important;
               }
+
+              .modal-header {
+                border-bottom: 2px solid #334155 !important;
+                background: white !important;
+                padding: 15mm 20mm 10mm 20mm !important;
+                display: flex !important;
+                justify-content: space-between !important;
+              }
+
+              .modal-body {
+                overflow: visible !important;
+                max-height: none !important;
+                padding: 10mm 20mm !important;
+                flex: none !important;
+                display: block !important;
+              }
+
+              .modal-footer {
+                position: relative !important;
+                bottom: auto !important;
+                border-top: 1px solid #e2e8f0 !important;
+                background: white !important;
+                padding: 15mm 20mm !important;
+                display: block !important;
+              }
+
+              /* General fixes for print quality */
+              h2, h3, h4 { color: black !important; }
+              p, span { color: #334155 !important; }
+              
+              /* Ensure backgrounds are printed if 'Print Background Graphics' is off */
+              * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+              }
+
+              /* Final overrides */
               .print-hide {
                 display: none !important;
               }
-              .modal-overlay {
-                background: none !important;
-                backdrop-filter: none !important;
-              }
+            }
+
+            @page {
+              size: A4;
+              margin: 0;
             }
           `}
         </style>
 
         {/* Report Content */}
-        <div style={{ padding: '2.5rem', maxHeight: '80vh', overflowY: 'auto' }}>
+        <div className="modal-body" style={{ padding: '3rem' }}>
           {/* Brand/Watermark Mockup */}
-          <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-            <h2 style={{ margin: '0', fontSize: '1.5rem', fontWeight: '800', letterSpacing: '-0.025em', color: '#0f172a' }}>
+          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+            <div style={{
+              display: 'inline-flex',
+              padding: '12px',
+              background: '#3b82f6',
+              color: 'white',
+              borderRadius: '12px',
+              marginBottom: '1rem'
+            }}>
+              <Package size={32} />
+            </div>
+            <h2 style={{ margin: '0', fontSize: '1.75rem', fontWeight: '900', letterSpacing: '-0.03em', color: '#0f172a' }}>
               SMART<span style={{ color: '#3b82f6' }}>INVENTORY</span>
             </h2>
-            <p style={{ margin: '4px 0 0', fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+            <p style={{ margin: '6px 0 0', fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: '700' }}>
               Warehouse Operations Division
             </p>
+            <div style={{ width: '40px', height: '3px', background: '#3b82f6', margin: '1.5rem auto' }}></div>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2.5rem', borderBottom: '2px solid #f1f5f9', paddingBottom: '1.5rem' }}>
             <div>
-              <p style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: '#94a3b8', margin: '0 0 4px', fontWeight: '700' }}>Transaction Ref</p>
-              <h3 style={{ margin: '0', fontSize: '1.1rem', fontWeight: '700' }}>{transaction.reference_id}</h3>
+              <p style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: '#94a3b8', margin: '0 0 6px', fontWeight: '800' }}>Reference ID</p>
+              <h3 style={{ margin: '0', fontSize: '1.25rem', fontWeight: '800', color: '#334155', fontFamily: 'monospace' }}>{transaction.reference_id}</h3>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <p style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: '#94a3b8', margin: '0 0 4px', fontWeight: '700' }}>Completion Date</p>
-              <p style={{ margin: '0', fontSize: '0.9rem', fontWeight: '600' }}>{formatDate(transaction.updated_at)}</p>
+              <p style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: '#94a3b8', margin: '0 0 6px', fontWeight: '800' }}>Issuance Date</p>
+              <p style={{ margin: '0', fontSize: '1rem', fontWeight: '700', color: '#334155' }}>{formatDate(transaction.updated_at)}</p>
             </div>
           </div>
 
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(2, 1fr)', 
-            gap: '1.5rem', 
-            background: '#f1f5f9', 
-            padding: '1.5rem', 
-            borderRadius: '12px',
-            marginBottom: '2.5rem'
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1.5fr 1fr',
+            gap: '2rem',
+            background: '#f8fafc',
+            padding: '2rem',
+            borderRadius: '16px',
+            marginBottom: '3rem',
+            border: '1px solid #e2e8f0'
           }}>
-            <div>
-               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', color: '#475569' }}>
-                 <Package size={16} />
-                 <span style={{ fontWeight: '700', fontSize: '0.85rem' }}>Item Information</span>
-               </div>
-               <p style={{ margin: '0', fontSize: '1rem', fontWeight: '700' }}>{transaction.item?.name}</p>
-               <p style={{ margin: '2px 0 0', fontSize: '0.8rem', color: '#64748b' }}>SKU: {transaction.item?.sku}</p>
-               <p style={{ margin: '2px 0 0', fontSize: '0.8rem', color: '#64748b' }}>Category: {transaction.item?.category}</p>
+            <div style={{ borderRight: '1px solid #e2e8f0', paddingRight: '2rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', color: '#64748b' }}>
+                <Package size={18} />
+                <span style={{ fontWeight: '800', fontSize: '0.75rem', textTransform: 'uppercase' }}>Asset Information</span>
+              </div>
+              <h4 style={{ margin: '0', fontSize: '1.2rem', fontWeight: '800', color: '#0f172a' }}>{transaction.item?.name}</h4>
+              <div style={{ marginTop: '12px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                <span style={{ padding: '4px 10px', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '600', color: '#475569' }}>
+                  SKU: {transaction.item?.sku}
+                </span>
+                <span style={{ padding: '4px 10px', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '600', color: '#475569' }}>
+                  Category: {transaction.item?.category}
+                </span>
+              </div>
             </div>
             <div>
-               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', color: '#475569' }}>
-                 <ClipboardList size={16} />
-                 <span style={{ fontWeight: '700', fontSize: '0.85rem' }}>Movement Details</span>
-               </div>
-               <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                 <span style={{ fontSize: '1.5rem', fontWeight: '800', color: transaction.type === 'STOCK_IN' ? '#10b981' : '#f43f5e' }}>
-                   {transaction.type === 'STOCK_IN' ? '+' : '-'}{transaction.quantity}
-                 </span>
-                 <span style={{ fontSize: '0.8rem', fontWeight: '600', color: '#64748b' }}>Units</span>
-               </div>
-               <p style={{ margin: '4px 0 0', fontSize: '0.8rem', fontWeight: '600', color: '#334155' }}>
-                 Type: <span style={{ textTransform: 'capitalize' }}>{transaction.type.replace('_', ' ').toLowerCase()}</span>
-               </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', color: '#64748b' }}>
+                <ClipboardList size={18} />
+                <span style={{ fontWeight: '800', fontSize: '0.75rem', textTransform: 'uppercase' }}>Movement</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                <span style={{ fontSize: '2rem', fontWeight: '900', color: transaction.type === 'STOCK_IN' ? '#10b981' : '#f43f5e' }}>
+                  {transaction.type === 'STOCK_IN' ? '+' : '-'}{transaction.quantity}
+                </span>
+                <span style={{ fontSize: '0.9rem', fontWeight: '700', color: '#64748b' }}>UNITS</span>
+              </div>
+              <p style={{ margin: '8px 0 0', fontSize: '0.85rem', fontWeight: '700', color: '#334155', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: transaction.type === 'STOCK_IN' ? '#10b981' : '#f43f5e' }}></span>
+                {transaction.type.replace('_', ' ')}
+              </p>
             </div>
           </div>
 
           {/* Audit Trail Section */}
           <div style={{ marginBottom: '1rem' }}>
-             <h4 style={{ fontSize: '0.9rem', fontWeight: '700', color: '#0f172a', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-               <Calendar size={16} /> Status History & Audit Trail
-             </h4>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-               {transaction.logs?.map((log, index) => (
-                 <div key={log.id} style={{ display: 'flex', gap: '16px', position: 'relative' }}>
-                   {index !== transaction.logs.length - 1 && (
-                     <div style={{ position: 'absolute', left: '10px', top: '24px', bottom: '-15px', width: '2px', background: '#e2e8f0' }}></div>
-                   )}
-                   <div style={{ 
-                     width: '22px', 
-                     height: '22px', 
-                     borderRadius: '50%', 
-                     background: log.to_status === 'DONE' ? '#10b981' : '#e2e8f0', 
-                     display: 'flex', 
-                     alignItems: 'center', 
-                     justifyContent: 'center',
-                     flexShrink: 0,
-                     zIndex: 2
-                   }}>
-                     {log.to_status === 'DONE' && <CheckCircle size={14} color="#fff" />}
-                   </div>
-                   <div style={{ flex: 1 }}>
-                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                       <span style={{ fontSize: '0.85rem', fontWeight: '700', color: '#334155' }}>Status: {log.to_status}</span>
-                       <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{formatDate(log.created_at)}</span>
-                     </div>
-                     <p style={{ margin: '4px 0 0', fontSize: '0.8rem', color: '#64748b', fontStyle: 'italic' }}>
-                       "{log.notes || 'Automated status migration'}"
-                     </p>
-                   </div>
-                 </div>
-               ))}
-             </div>
+            <h4 style={{ fontSize: '0.85rem', fontWeight: '800', color: '#0f172a', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '10px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <Calendar size={18} style={{ color: '#3b82f6' }} /> Chain of Custody & Audit logs
+            </h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', paddingLeft: '10px' }}>
+              {transaction.logs?.map((log, index) => (
+                <div key={log.id} style={{ display: 'flex', gap: '20px', position: 'relative' }}>
+                  {index !== transaction.logs.length - 1 && (
+                    <div style={{ position: 'absolute', left: '11px', top: '24px', bottom: '-20px', width: '2px', background: '#f1f5f9' }}></div>
+                  )}
+                  <div style={{
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    background: log.to_status === 'DONE' ? '#10b981' : '#f1f5f9',
+                    boxShadow: log.to_status === 'DONE' ? '0 0 0 4px rgba(16, 185, 129, 0.1)' : 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    zIndex: 2,
+                    border: log.to_status === 'DONE' ? 'none' : '2px solid #e2e8f0'
+                  }}>
+                    {log.to_status === 'DONE' ? <CheckCircle size={14} color="#fff" /> : <div style={{ width: '6px', height: '6px', background: '#cbd5e1', borderRadius: '50%' }} />}
+                  </div>
+                  <div style={{ flex: 1, paddingBottom: '0.5rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <span style={{ fontSize: '0.9rem', fontWeight: '800', color: '#334155' }}>{log.to_status}</span>
+                      <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: '600' }}>{formatDate(log.created_at)}</span>
+                    </div>
+                    <p style={{ margin: '6px 0 0', fontSize: '0.85rem', color: '#64748b', lineHeight: '1.5' }}>
+                      {log.notes || 'Automated status migration recorded by System'}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div style={{ 
-          padding: '1.5rem 2.5rem', 
-          background: '#f8fafc', 
+        <footer className="modal-footer" style={{
+          background: '#f8fafc',
+          padding: '1.5rem 3rem',
+          textAlign: 'center',
           borderTop: '1px solid #e2e8f0',
-          textAlign: 'center'
+          justifyContent: 'center'
         }}>
-          <p style={{ margin: '0', fontSize: '0.65rem', color: '#94a3b8', lineHeight: '1.5' }}>
-            This is a computer-generated document. No signature is required. <br />
-            System Timestamp: {new Date().toISOString()} | Trace ID: TR-{transaction.id}
-          </p>
-        </div>
+          <div>
+            <p style={{ margin: '0', fontSize: '0.7rem', color: '#94a3b8', fontWeight: '600', lineHeight: '1.6' }}>
+              SECURED DOCUMENT - SYSTEM GENERATED <br />
+              Generated on: {new Date().toLocaleString()} | Trace ID: {transaction.id.toString().padStart(8, '0')}
+            </p>
+          </div>
+        </footer>
       </div>
     </div>,
     document.body

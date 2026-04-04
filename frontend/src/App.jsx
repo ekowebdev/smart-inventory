@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Package, History, LayoutDashboard, Search, AlertCircle } from 'lucide-react';
+import { Package, History, LayoutDashboard, Search, AlertCircle, X } from 'lucide-react';
 import { useInventoryStore } from './store/useInventoryStore';
 import InventoryList from './components/InventoryList';
 import DashboardCards from './components/DashboardCards';
@@ -11,18 +11,12 @@ function App() {
   const [filter, setFilter] = useState('');
 
   useEffect(() => {
-    fetchItems(filter);
+    fetchItems();
     fetchTransactions();
-  }, [filter, fetchItems, fetchTransactions]);
+  }, [fetchItems, fetchTransactions]);
 
   return (
     <div className="app-container">
-      {error && (
-        <div className="glass-card flex-center" style={{ borderColor: 'var(--accent-error)', color: 'var(--accent-error)', marginBottom: '2rem' }}>
-          <AlertCircle size={20} />
-          <span>Server Error: {error}. Is the backend running?</span>
-        </div>
-      )}
 
       <header className="layout-header animate-fade-in">
         <div className="flex-center">
@@ -34,41 +28,63 @@ function App() {
             <p className="app-version">Premium Core System v1.1</p>
           </div>
         </div>
-
-        <div className="search-group">
-          <Search size={18} className="search-icon" />
-          <input 
-            type="text" 
-            placeholder="Search by Name, SKU, or Customer..." 
-            className="search-input"
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-          />
-        </div>
       </header>
 
       <main>
         <DashboardCards />
 
-        <div className="tab-nav animate-fade-in" style={{ animationDelay: '0.1s' }}>
-          <button 
-            className={`tab-button ${activeTab === 'inventory' ? 'active' : ''}`}
-            onClick={() => setActiveTab('inventory')}
-          >
-            <LayoutDashboard size={18} />
-            Inventory List
-          </button>
-          <button 
-            className={`tab-button ${activeTab === 'history' ? 'active' : ''}`}
-            onClick={() => setActiveTab('history')}
-          >
-            <History size={18} />
-            Ledger History
-          </button>
+        <div className="flex-between animate-fade-in" style={{ animationDelay: '0.1s', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+          <div className="tab-nav" style={{ margin: 0 }}>
+            <button
+              className={`tab-button ${activeTab === 'inventory' ? 'active' : ''}`}
+              onClick={() => setActiveTab('inventory')}
+            >
+              <LayoutDashboard size={18} />
+              Inventory List
+            </button>
+            <button
+              className={`tab-button ${activeTab === 'history' ? 'active' : ''}`}
+              onClick={() => setActiveTab('history')}
+            >
+              <History size={18} />
+              Ledger History
+            </button>
+          </div>
+
+          {activeTab === 'inventory' && (
+            <div className="search-group">
+              <Search size={18} className="search-icon" />
+              <input
+                type="text"
+                placeholder="Search by Name or SKU..."
+                className="search-input"
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+              />
+              {filter && (
+                <button 
+                  onClick={() => setFilter('')}
+                  style={{ 
+                    position: 'absolute', 
+                    right: '16px', 
+                    background: 'none', 
+                    border: 'none', 
+                    color: 'var(--text-muted)', 
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '4px'
+                  }}
+                >
+                  <X size={16} />
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
-          {activeTab === 'inventory' ? <InventoryList /> : <TransactionHistory />}
+          {activeTab === 'inventory' ? <InventoryList searchFilter={filter} /> : <TransactionHistory />}
         </div>
       </main>
 

@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, CheckCircle, XCircle, Play, Filter } from 'lucide-react';
+import { Clock, CheckCircle, XCircle, Play, Filter, RotateCcw, Eye } from 'lucide-react';
 import { useInventoryStore } from '../store/useInventoryStore';
 import StatusUpdateModal from './StatusUpdateModal';
 import TransactionReportModal from './TransactionReportModal';
-import { Eye } from 'lucide-react';
 
 function TransactionHistory() {
   const { transactions, fetchTransactions } = useInventoryStore();
@@ -26,6 +25,15 @@ function TransactionHistory() {
     }
   };
 
+  const getStatusClass = (status) => {
+    switch (status) {
+      case 'DONE': return 'status-done';
+      case 'IN_PROGRESS': return 'status-warning';
+      case 'CANCELLED': return 'status-error';
+      default: return 'status-created';
+    }
+  };
+
   const openUpdateModal = (tx, nextStatus) => {
     setSelectedTx(tx);
     setTargetStatus(nextStatus);
@@ -39,30 +47,51 @@ function TransactionHistory() {
         <h3 style={{ fontSize: '1.25rem', fontWeight: '700' }}>Transaction Ledger</h3>
         <div className="flex-center" style={{ gap: '10px' }}>
           <div className="flex-center" style={{ gap: '6px' }}>
-             <Filter size={14} style={{ color: 'var(--text-muted)' }} />
-             <select 
-               className="input-standard" 
-               style={{ padding: '6px 12px', fontSize: '0.85rem', width: 'auto' }}
-               value={typeFilter}
-               onChange={(e) => setTypeFilter(e.target.value)}
-             >
-               <option value="">All Types</option>
-               <option value="STOCK_IN">Stock In</option>
-               <option value="STOCK_OUT">Stock Out</option>
-             </select>
+            <Filter size={14} style={{ color: 'var(--text-muted)' }} />
+            <select
+              className="input-standard"
+              style={{ padding: '6px 12px', fontSize: '0.85rem', width: 'auto' }}
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+            >
+              <option value="">All Types</option>
+              <option value="STOCK_IN">Stock In</option>
+              <option value="STOCK_OUT">Stock Out</option>
+            </select>
           </div>
-          <select 
-             className="input-standard" 
-             style={{ padding: '6px 12px', fontSize: '0.85rem', width: 'auto' }}
-             value={statusFilter}
-             onChange={(e) => setStatusFilter(e.target.value)}
+          <select
+            className="input-standard"
+            style={{ padding: '6px 12px', fontSize: '0.85rem', width: 'auto' }}
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
           >
-             <option value="">All Status</option>
-             <option value="CREATED">Created</option>
-             <option value="IN_PROGRESS">In Progress</option>
-             <option value="DONE">Done</option>
-             <option value="CANCELLED">Cancelled</option>
+            <option value="">All Status</option>
+            <option value="CREATED">Created</option>
+            <option value="IN_PROGRESS">In Progress</option>
+            <option value="DONE">Done</option>
+            <option value="CANCELLED">Cancelled</option>
           </select>
+          {(typeFilter || statusFilter) && (
+            <button
+              onClick={() => { setTypeFilter(''); setStatusFilter(''); }}
+              title="Reset Filters"
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--text-muted)',
+                padding: '8px',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                transition: 'all 0.2s',
+              }}
+              onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'}
+              onMouseOut={(e) => e.currentTarget.style.background = 'none'}
+            >
+              <RotateCcw size={16} />
+            </button>
+          )}
         </div>
       </div>
 
@@ -101,7 +130,7 @@ function TransactionHistory() {
                 <td>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     {getStatusIcon(tx.status)}
-                    <span className={`status-badge status-${tx.status.toLowerCase()}`}>{tx.status}</span>
+                    <span className={`status-badge ${getStatusClass(tx.status)}`}>{tx.status}</span>
                   </div>
                 </td>
                 <td style={{ textAlign: 'right' }}>
@@ -144,9 +173,9 @@ function TransactionHistory() {
 
                     {/* Report for DONE */}
                     {tx.status === 'DONE' && (
-                      <button 
-                        onClick={() => setReportTx(tx)} 
-                        className="premium-button" 
+                      <button
+                        onClick={() => setReportTx(tx)}
+                        className="premium-button"
                         style={{ fontSize: '0.7rem', padding: '4px 10px', background: 'rgba(30, 41, 59, 0.4)', color: 'var(--text-muted)', border: '1px solid var(--border)', boxShadow: 'none' }}
                       >
                         <Eye size={12} /> View Official Report
@@ -161,17 +190,17 @@ function TransactionHistory() {
       </div>
 
       {selectedTx && (
-        <StatusUpdateModal 
-          transaction={selectedTx} 
-          nextStatus={targetStatus} 
-          onClose={() => { setSelectedTx(null); setTargetStatus(null); }} 
+        <StatusUpdateModal
+          transaction={selectedTx}
+          nextStatus={targetStatus}
+          onClose={() => { setSelectedTx(null); setTargetStatus(null); }}
         />
       )}
 
       {reportTx && (
-        <TransactionReportModal 
-          transaction={reportTx} 
-          onClose={() => setReportTx(null)} 
+        <TransactionReportModal
+          transaction={reportTx}
+          onClose={() => setReportTx(null)}
         />
       )}
     </div>

@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import { X, Save, Box } from 'lucide-react';
 import { useInventoryStore } from '../store/useInventoryStore';
+import { useEffect } from 'react';
 
 function AddItemModal({ onClose }) {
-  const { createItem, loading } = useInventoryStore();
+  const { createItem, loading, errors, clearErrors } = useInventoryStore();
   const [formData, setFormData] = useState({
     name: '',
     sku: '',
@@ -14,6 +15,10 @@ function AddItemModal({ onClose }) {
     physical_stock: 0,
   });
 
+  useEffect(() => {
+    clearErrors();
+  }, [clearErrors]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const data = { 
@@ -22,8 +27,10 @@ function AddItemModal({ onClose }) {
         physical_stock: parseInt(formData.physical_stock),
         available_stock: parseInt(formData.physical_stock) 
     };
-    await createItem(data);
-    onClose();
+    const success = await createItem(data);
+    if (success) {
+      onClose();
+    }
   };
 
   return ReactDOM.createPortal(
@@ -47,33 +54,34 @@ function AddItemModal({ onClose }) {
               <label className="form-label">Item Name</label>
               <input 
                 type="text" 
-                className="input-standard" 
+                className={`input-standard ${errors.name ? 'input-error' : ''}`}
                 placeholder="e.g. MacBook Pro M3"
                 value={formData.name}
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
-                required 
               />
+              {errors.name && <span className="error-text">{errors.name}</span>}
             </div>
             <div className="form-field">
               <label className="form-label">SKU Code</label>
               <input 
                 type="text" 
-                className="input-standard" 
+                className={`input-standard ${errors.sku ? 'input-error' : ''}`}
                 placeholder="e.g. LAP-MBP-001"
                 value={formData.sku}
                 onChange={(e) => setFormData({...formData, sku: e.target.value})}
-                required 
               />
+              {errors.sku && <span className="error-text">{errors.sku}</span>}
             </div>
             <div className="form-field">
               <label className="form-label">Category</label>
               <input 
                 type="text" 
-                className="input-standard" 
+                className={`input-standard ${errors.category ? 'input-error' : ''}`}
                 placeholder="Electronics"
                 value={formData.category}
                 onChange={(e) => setFormData({...formData, category: e.target.value})}
               />
+              {errors.category && <span className="error-text">{errors.category}</span>}
             </div>
             <div className="form-field">
               <label className="form-label">Initial Physical Stock</label>
@@ -89,10 +97,11 @@ function AddItemModal({ onClose }) {
               <input 
                 type="number" 
                 step="0.01"
-                className="input-standard" 
+                className={`input-standard ${errors.price ? 'input-error' : ''}`} 
                 value={formData.price}
                 onChange={(e) => setFormData({...formData, price: e.target.value})}
               />
+              {errors.price && <span className="error-text">{errors.price}</span>}
             </div>
             <div className="form-field" style={{ gridColumn: 'span 2' }}>
               <label className="form-label">Short Description</label>

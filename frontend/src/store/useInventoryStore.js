@@ -1,19 +1,29 @@
 import { create } from 'zustand';
 import { inventoryApi } from '../api/inventoryApi';
+import { itemSchema } from '../schemas/itemSchema';
+import { transactionSchema } from '../schemas/transactionSchema';
+
+const formatZodErrors = (error) => {
+  const errors = {};
+  error.issues.forEach((issue) => {
+    errors[issue.path[0]] = issue.message;
+  });
+  return errors;
+};
 
 export const useInventoryStore = create((set, get) => ({
   items: [],
   transactions: [],
   loading: false,
-  error: null,
+  errors: {},
 
   fetchItems: async (filter = '') => {
     set({ loading: true });
     try {
       const { data } = await inventoryApi.getItems(filter);
-      set({ items: data, loading: false });
+      set({ items: data, loading: false, error: null });
     } catch (err) {
-      set({ error: err.message, loading: false });
+      set({ items: [], loading: false });
     }
   },
 
@@ -23,53 +33,94 @@ export const useInventoryStore = create((set, get) => ({
       const { data } = await inventoryApi.getTransactions(type, status);
       set({ transactions: data, loading: false });
     } catch (err) {
-      set({ error: err.message, loading: false });
+      set({ transactions: [], loading: false });
     }
   },
 
+  clearErrors: () => set({ errors: {} }),
+
   createStockIn: async (data) => {
-    set({ loading: true });
+    const result = transactionSchema.safeParse(data);
+    if (!result.success) {
+      set({ errors: formatZodErrors(result.error) });
+      return false;
+    }
+
+    set({ loading: true, errors: {} });
     try {
       await inventoryApi.createStockIn(data);
       get().fetchItems();
       get().fetchTransactions();
       set({ loading: false });
+      return true;
     } catch (err) {
-      set({ error: err.message, loading: false });
+      const errMsg = err.response?.data?.error || err.message;
+      set({ errors: { general: errMsg }, loading: false });
+      return false;
     }
   },
 
   createStockOut: async (data) => {
-    set({ loading: true });
+    const result = transactionSchema.safeParse(data);
+    if (!result.success) {
+      set({ errors: formatZodErrors(result.error) });
+      return false;
+    }
+
+    set({ loading: true, errors: {} });
     try {
       await inventoryApi.createStockOut(data);
       get().fetchItems();
       get().fetchTransactions();
       set({ loading: false });
+      return true;
     } catch (err) {
-      set({ error: err.message, loading: false });
+      const errMsg = err.response?.data?.error || err.message;
+      set({ errors: { general: errMsg }, loading: false });
+      return false;
     }
   },
 
   createItem: async (data) => {
-    set({ loading: true });
+    const result = itemSchema.safeParse(data);
+    if (!result.success) {
+      set({ errors: formatZodErrors(result.error) });
+      return false;
+    }
+
+    set({ loading: true, errors: {} });
     try {
       await inventoryApi.createItem(data);
       get().fetchItems();
       set({ loading: false });
+      return true;
     } catch (err) {
-      set({ error: err.message, loading: false });
+      const errMsg = err.response?.data?.error || err.message;
+      const backendErrors = {};
+      if (errMsg.includes("Item.Name")) backendErrors.name = "Name already exists or invalid";
+      if (errMsg.includes("Item.SKU")) backendErrors.sku = "SKU already exists or invalid";
+
+      set({ errors: Object.keys(backendErrors).length > 0 ? backendErrors : { general: errMsg }, loading: false });
+      return false;
     }
   },
 
   updateItem: async (id, data) => {
-    set({ loading: true });
+    const result = itemSchema.safeParse(data);
+    if (!result.success) {
+      set({ errors: formatZodErrors(result.error) });
+      return false;
+    }
+
+    set({ loading: true, errors: {} });
     try {
       await inventoryApi.updateItem(id, data);
       get().fetchItems();
       set({ loading: false });
+      return true;
     } catch (err) {
-      set({ error: err.message, loading: false });
+      set({ errors: { general: err.response?.data?.error || err.message }, loading: false });
+      return false;
     }
   },
 
