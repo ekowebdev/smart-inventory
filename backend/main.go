@@ -13,7 +13,26 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+
+	_ "smart-inventory-backend/docs"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
+
+// @title Smart Inventory API
+// @version 1.0
+// @description Premium Core System for Warehouse and Inventory Management.
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost:8080
+// @BasePath /api/v1
 
 func main() {
 	_ = godotenv.Load()
@@ -69,6 +88,9 @@ func main() {
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"message": "Smart Inventory API v1 (Transactional)"})
 	})
+
+	// Swagger Route
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	port := os.Getenv("APP_PORT")
 	if port == "" {

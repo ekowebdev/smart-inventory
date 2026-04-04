@@ -18,6 +18,16 @@ func NewItemController(service services.ItemService) *ItemController {
 	return &ItemController{service}
 }
 
+// GetAll godoc
+// @Summary List all items
+// @Description Get a list of all inventory items with optional filtering.
+// @Tags items
+// @Accept  json
+// @Produce  json
+// @Param   filter     query    string  false  "Item filter (name, sku, category)"
+// @Success 200 {array} models.Item
+// @Failure 500 {object} map[string]string
+// @Router /items [get]
 func (c *ItemController) GetAll(ctx *gin.Context) {
 	filter := ctx.Query("filter")
 	items, err := c.service.GetAllItems(filter)
@@ -28,6 +38,17 @@ func (c *ItemController) GetAll(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, items)
 }
 
+// GetByID godoc
+// @Summary Get item by ID
+// @Description Retrieve details of a single inventory item by its numeric ID.
+// @Tags items
+// @Accept  json
+// @Produce  json
+// @Param   id     path    int     true  "Item ID"
+// @Success 200 {object} models.Item
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /items/{id} [get]
 func (c *ItemController) GetByID(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
@@ -42,6 +63,17 @@ func (c *ItemController) GetByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, item)
 }
 
+// Create godoc
+// @Summary Create new item
+// @Description Add a new SKU to the inventory assets.
+// @Tags items
+// @Accept  json
+// @Produce  json
+// @Param   item     body    models.Item     true  "Item Object"
+// @Success 201 {object} models.Item
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /items [post]
 func (c *ItemController) Create(ctx *gin.Context) {
 	var item models.Item
 	if err := ctx.ShouldBindJSON(&item); err != nil {
@@ -56,6 +88,18 @@ func (c *ItemController) Create(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, newItem)
 }
 
+// Update godoc
+// @Summary Update item
+// @Description Modify an existing inventory item's details.
+// @Tags items
+// @Accept  json
+// @Produce  json
+// @Param   id     path    int     true  "Item ID"
+// @Param   item     body    models.Item     true  "Item Object"
+// @Success 200 {object} models.Item
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /items/{id} [put]
 func (c *ItemController) Update(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
@@ -75,6 +119,17 @@ func (c *ItemController) Update(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, updatedItem)
 }
 
+// Delete godoc
+// @Summary Delete item
+// @Description Permantently remove an inventory item asset.
+// @Tags items
+// @Accept  json
+// @Produce  json
+// @Param   id     path    int     true  "Item ID"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /items/{id} [delete]
 func (c *ItemController) Delete(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
