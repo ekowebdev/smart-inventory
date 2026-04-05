@@ -1,4 +1,4 @@
-# Smart Inventory Core System v1.2
+# Smart Inventory Core System v1.1
 
 A premium, enterprise-grade inventory management system built with **Golang (Gin)** and **React (Vite)**. Featuring a stunning glassmorphism dashboard, real-time stock management, audit-ready reports, and a robust transaction ledger with professional workflow support.
 
@@ -64,6 +64,7 @@ smart-inventory/
 │   ├── routes/         # Modular endpoint definitions
 │   ├── models/         # GORM Models & Schemas
 │   ├── services/       # Business Logic (Stock-out allocation logic)
+|   ├── repositories/   # GORM Database Operations (Omit logic for immutable fields)
 │   ├── docs/           # Auto-generated Swagger documentation
 │   └── main.go         # Entry Point
 ├── frontend/           # Vite React App
