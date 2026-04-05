@@ -1,19 +1,22 @@
-import React, { useState } from 'react';
-import { Plus, Edit3, Trash2, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Plus, Edit3, Trash2, ArrowUpRight, ArrowDownRight, Layers } from 'lucide-react';
 import { useInventoryStore } from '../store/useInventoryStore';
 import TransactionModal from './TransactionModal';
 import AddItemModal from './AddItemModal';
 import EditItemModal from './EditItemModal';
 import DeleteConfirmModal from './DeleteConfirmModal';
+import Pagination from './Pagination';
 
-
-function InventoryList({ searchFilter = '' }) {
-  const { items, fetchItems } = useInventoryStore();
-
-  const filteredItems = items.filter(item => 
-    item.name.toLowerCase().includes(searchFilter.toLowerCase()) ||
-    item.sku.toLowerCase().includes(searchFilter.toLowerCase())
-  );
+function InventoryList() {
+  const { 
+    items, 
+    metaItems, 
+    itemPage, 
+    itemLimit, 
+    setItemPage, 
+    setItemLimit 
+  } = useInventoryStore();
+  
   const [selectedItem, setSelectedItem] = React.useState(null);
   const [modalType, setModalType] = React.useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = React.useState(false);
@@ -25,14 +28,50 @@ function InventoryList({ searchFilter = '' }) {
     setModalType(type);
   };
 
+  const handlePageChange = (page) => {
+    setItemPage(page);
+  };
+
+  const handlePageSizeChange = (e) => {
+    setItemLimit(Number(e.target.value));
+  };
+
   return (
     <div className="glass-card" style={{ padding: '0', overflow: 'hidden' }}>
       <div className="flex-between" style={{ padding: '1.5rem', borderBottom: '1px solid var(--border)' }}>
-        <h3 style={{ fontSize: '1.25rem', fontWeight: '700' }}>Inventory Assets</h3>
-        <button className="premium-button" onClick={() => setIsAddModalOpen(true)}>
-          <Plus size={18} />
-          Add New SKU
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{ padding: '0.5rem', background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6', borderRadius: '0.75rem' }}>
+            <Layers size={20} />
+          </div>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: '700' }}>Inventory Assets</h3>
+        </div>
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+            <span>Show</span>
+            <select 
+              value={itemLimit} 
+              onChange={handlePageSizeChange}
+              style={{ 
+                background: 'rgba(255,255,255,0.05)', 
+                border: '1px solid var(--border)', 
+                color: 'white', 
+                borderRadius: '0.5rem',
+                padding: '0.25rem 0.5rem',
+                outline: 'none'
+              }}
+            >
+              <option value="5" style={{ background: '#1e293b' }}>5</option>
+              <option value="10" style={{ background: '#1e293b' }}>10</option>
+              <option value="20" style={{ background: '#1e293b' }}>20</option>
+              <option value="50" style={{ background: '#1e293b' }}>50</option>
+            </select>
+          </div>
+          <button className="premium-button" onClick={() => setIsAddModalOpen(true)}>
+            <Plus size={18} />
+            Add New SKU
+          </button>
+        </div>
       </div>
 
       <div className="table-wrapper">
@@ -47,13 +86,13 @@ function InventoryList({ searchFilter = '' }) {
             </tr>
           </thead>
           <tbody>
-            {filteredItems.length === 0 ? (
+            {!Array.isArray(items) || items.length === 0 ? (
               <tr>
                 <td colSpan="5" style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
                   No items found. Adjust your search or add a new SKU.
                 </td>
               </tr>
-            ) : filteredItems.map((item) => (
+            ) : items.map((item) => (
               <tr key={item.id}>
                 <td>
                   <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -105,6 +144,14 @@ function InventoryList({ searchFilter = '' }) {
             ))}
           </tbody>
         </table>
+      </div>
+
+      <div style={{ padding: '1rem 1.5rem' }}>
+        <Pagination 
+          currentPage={metaItems.current_page || 1} 
+          totalPages={metaItems.total_pages || 1} 
+          onPageChange={handlePageChange} 
+        />
       </div>
 
       {modalType && <TransactionModal item={selectedItem} type={modalType} onClose={() => setModalType(null)} />}

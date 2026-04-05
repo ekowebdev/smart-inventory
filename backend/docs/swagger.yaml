@@ -1,5 +1,23 @@
 basePath: /api/v1
 definitions:
+  models.ErrorDetail:
+    properties:
+      code:
+        example: INVALID_INPUT
+        type: string
+      details: {}
+      message:
+        example: Validation failed
+        type: string
+    type: object
+  models.ErrorResponse:
+    properties:
+      error:
+        $ref: '#/definitions/models.ErrorDetail'
+      status:
+        example: error
+        type: string
+    type: object
   models.Item:
     properties:
       available_stock:
@@ -29,71 +47,37 @@ definitions:
     - name
     - sku
     type: object
-  models.Transaction:
+  models.MetaData:
     properties:
-      created_at:
-        type: string
-      id:
+      current_page:
+        example: 1
         type: integer
-      item:
-        $ref: '#/definitions/models.Item'
-      item_id:
+      limit:
+        example: 5
         type: integer
-      logs:
-        items:
-          $ref: '#/definitions/models.TransactionLog'
-        type: array
-      notes:
-        type: string
-      quantity:
+      total_pages:
+        example: 20
         type: integer
-      reference_id:
-        description: Customer or Supplier Name
-        type: string
+      total_records:
+        example: 100
+        type: integer
+    type: object
+  models.PaginatedResponse:
+    properties:
+      data: {}
+      meta:
+        $ref: '#/definitions/models.MetaData'
       status:
-        $ref: '#/definitions/models.TransactionStatus'
-      type:
-        $ref: '#/definitions/models.TransactionType'
-      updated_at:
+        example: success
         type: string
     type: object
-  models.TransactionLog:
+  models.SuccessResponse:
     properties:
-      created_at:
+      data: {}
+      status:
+        example: success
         type: string
-      from_status:
-        $ref: '#/definitions/models.TransactionStatus'
-      id:
-        type: integer
-      notes:
-        type: string
-      to_status:
-        $ref: '#/definitions/models.TransactionStatus'
-      transaction_id:
-        type: integer
     type: object
-  models.TransactionStatus:
-    enum:
-    - CREATED
-    - DRAFT
-    - IN_PROGRESS
-    - DONE
-    - CANCELLED
-    type: string
-    x-enum-varnames:
-    - STATUS_CREATED
-    - STATUS_DRAFT
-    - STATUS_IN_PROGRESS
-    - STATUS_DONE
-    - STATUS_CANCELLED
-  models.TransactionType:
-    enum:
-    - STOCK_IN
-    - STOCK_OUT
-    type: string
-    x-enum-varnames:
-    - STOCK_IN
-    - STOCK_OUT
 host: localhost:8080
 info:
   contact:
@@ -112,27 +96,31 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get a list of all inventory items with optional filtering.
+      description: Get a list of all inventory items with optional filtering and pagination.
       parameters:
       - description: Item filter (name, sku, category)
         in: query
         name: filter
         type: string
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/models.Item'
-            type: array
+            $ref: '#/definitions/models.PaginatedResponse'
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
       summary: List all items
       tags:
       - items
@@ -153,19 +141,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.Item'
+            $ref: '#/definitions/models.SuccessResponse'
         "400":
           description: Bad Request
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
       summary: Create new item
       tags:
       - items
@@ -186,21 +170,15 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.SuccessResponse'
         "400":
           description: Bad Request
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
       summary: Delete item
       tags:
       - items
@@ -220,19 +198,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Item'
+            $ref: '#/definitions/models.SuccessResponse'
         "400":
           description: Bad Request
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
       summary: Get item by ID
       tags:
       - items
@@ -258,19 +232,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Item'
+            $ref: '#/definitions/models.SuccessResponse'
         "400":
           description: Bad Request
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
       summary: Update item
       tags:
       - items
@@ -289,21 +259,25 @@ paths:
         in: query
         name: status
         type: string
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Items per page
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/models.Transaction'
-            type: array
+            $ref: '#/definitions/models.PaginatedResponse'
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
       summary: List transactions
       tags:
       - transactions
@@ -331,19 +305,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Transaction'
+            $ref: '#/definitions/models.SuccessResponse'
         "400":
           description: Bad Request
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
       summary: Update transaction status
       tags:
       - transactions
@@ -366,19 +336,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.Transaction'
+            $ref: '#/definitions/models.SuccessResponse'
         "400":
           description: Bad Request
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
       summary: Create Stock In
       tags:
       - transactions
@@ -401,19 +367,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.Transaction'
+            $ref: '#/definitions/models.SuccessResponse'
         "400":
           description: Bad Request
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/models.ErrorResponse'
       summary: Create Stock Out
       tags:
       - transactions

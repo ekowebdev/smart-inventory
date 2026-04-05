@@ -6,9 +6,8 @@ import DashboardCards from './components/DashboardCards';
 import TransactionHistory from './components/TransactionHistory';
 
 function App() {
-  const { fetchItems, fetchTransactions, loading, error } = useInventoryStore();
+  const { fetchItems, fetchTransactions, loading, itemFilter, setItemFilter } = useInventoryStore();
   const [activeTab, setActiveTab] = useState('inventory');
-  const [filter, setFilter] = useState('');
 
   useEffect(() => {
     fetchItems();
@@ -58,12 +57,12 @@ function App() {
                 type="text"
                 placeholder="Search by Name or SKU..."
                 className="search-input"
-                value={filter}
-                onChange={(e) => setFilter(e.target.value)}
+                value={itemFilter}
+                onChange={(e) => setItemFilter(e.target.value)}
               />
-              {filter && (
+              {itemFilter && (
                 <button 
-                  onClick={() => setFilter('')}
+                  onClick={() => setItemFilter('')}
                   style={{ 
                     position: 'absolute', 
                     right: '16px', 
@@ -84,7 +83,7 @@ function App() {
         </div>
 
         <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
-          {activeTab === 'inventory' ? <InventoryList searchFilter={filter} /> : <TransactionHistory />}
+          {activeTab === 'inventory' ? <InventoryList /> : <TransactionHistory />}
         </div>
       </main>
 

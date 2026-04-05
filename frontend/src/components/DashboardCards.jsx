@@ -5,9 +5,10 @@ import { useInventoryStore } from '../store/useInventoryStore';
 function DashboardCards() {
   const { items } = useInventoryStore();
   
-  const totalItems = items.length;
-  const totalPhysical = items.reduce((sum, item) => sum + (item.physical_stock || 0), 0);
-  const totalAvailable = items.reduce((sum, item) => sum + (item.available_stock || 0), 0);
+  const safeItems = Array.isArray(items) ? items : [];
+  const totalItems = safeItems.length;
+  const totalPhysical = safeItems.reduce((sum, item) => sum + (item.physical_stock || 0), 0);
+  const totalAvailable = safeItems.reduce((sum, item) => sum + (item.available_stock || 0), 0);
   const totalReserved = totalPhysical - totalAvailable;
 
   const stats = [

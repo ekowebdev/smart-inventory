@@ -26,18 +26,33 @@ func NewTransactionController(service services.TransactionService) *TransactionC
 // @Produce  json
 // @Param   type     query    string  false  "Transaction type (STOCK_IN, STOCK_OUT)"
 // @Param   status   query    string  false  "Transaction status (CREATED, DRAFT, IN_PROGRESS, DONE, CANCELLED)"
-// @Success 200 {array} models.Transaction
-// @Failure 500 {object} map[string]string
+// @Param   page     query    int     false  "Page number"
+// @Param   limit    query    int     false  "Items per page"
+// @Success 200 {object} models.PaginatedResponse
+// @Failure 500 {object} models.ErrorResponse
 // @Router /transactions [get]
 func (c *TransactionController) GetTransactions(ctx *gin.Context) {
 	txType := ctx.Query("type")
 	status := ctx.Query("status")
-	transactions, err := c.service.GetTransactions(txType, status)
+	page := ctx.Query("page")
+	limit := ctx.Query("limit")
+
+	result, err := c.service.GetTransactions(txType, status, page, limit)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"status": "error",
+			"error": gin.H{
+				"code":    "INTERNAL_SERVER_ERROR",
+				"message": err.Error(),
+			},
+		})
 		return
 	}
-	ctx.JSON(http.StatusOK, transactions)
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data":   result["data"],
+		"meta":   result["meta"],
+	})
 }
 
 // CreateStockIn godoc
@@ -47,9 +62,9 @@ func (c *TransactionController) GetTransactions(ctx *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param   request     body    object     true  "Stock In Request (item_id, quantity, reference_id, notes)"
-// @Success 201 {object} models.Transaction
-// @Failure 400 {object} map[string]string
-// @Failure 500 {object} map[string]string
+// @Success 201 {object} models.SuccessResponse
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
 // @Router /transactions/stock-in [post]
 func (c *TransactionController) CreateStockIn(ctx *gin.Context) {
 	var req struct {
@@ -60,16 +75,31 @@ func (c *TransactionController) CreateStockIn(ctx *gin.Context) {
 	}
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"status": "error",
+			"error": gin.H{
+				"code":    "INVALID_INPUT",
+				"message": err.Error(),
+			},
+		})
 		return
 	}
 
 	tx, err := c.service.CreateStockIn(req.ItemID, req.Quantity, req.ReferenceID, req.Notes)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"status": "error",
+			"error": gin.H{
+				"code":    "INTERNAL_SERVER_ERROR",
+				"message": err.Error(),
+			},
+		})
 		return
 	}
-	ctx.JSON(http.StatusCreated, tx)
+	ctx.JSON(http.StatusCreated, gin.H{
+		"status": "success",
+		"data":   tx,
+	})
 }
 
 // CreateStockOut godoc
@@ -79,9 +109,9 @@ func (c *TransactionController) CreateStockIn(ctx *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param   request     body    object     true  "Stock Out Request (item_id, quantity, reference_id, notes)"
-// @Success 201 {object} models.Transaction
-// @Failure 400 {object} map[string]string
-// @Failure 500 {object} map[string]string
+// @Success 201 {object} models.SuccessResponse
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
 // @Router /transactions/stock-out [post]
 func (c *TransactionController) CreateStockOut(ctx *gin.Context) {
 	var req struct {
@@ -92,16 +122,31 @@ func (c *TransactionController) CreateStockOut(ctx *gin.Context) {
 	}
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"status": "error",
+			"error": gin.H{
+				"code":    "INVALID_INPUT",
+				"message": err.Error(),
+			},
+		})
 		return
 	}
 
 	tx, err := c.service.CreateStockOut(req.ItemID, req.Quantity, req.ReferenceID, req.Notes)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"status": "error",
+			"error": gin.H{
+				"code":    "INTERNAL_SERVER_ERROR",
+				"message": err.Error(),
+			},
+		})
 		return
 	}
-	ctx.JSON(http.StatusCreated, tx)
+	ctx.JSON(http.StatusCreated, gin.H{
+		"status": "success",
+		"data":   tx,
+	})
 }
 
 // UpdateStatus godoc
@@ -112,14 +157,20 @@ func (c *TransactionController) CreateStockOut(ctx *gin.Context) {
 // @Produce  json
 // @Param   id     path    int     true  "Transaction ID"
 // @Param   request     body    object     true  "Status Update Request (status, notes)"
-// @Success 200 {object} models.Transaction
-// @Failure 400 {object} map[string]string
-// @Failure 500 {object} map[string]string
+// @Success 200 {object} models.SuccessResponse
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
 // @Router /transactions/{id}/status [put]
 func (c *TransactionController) UpdateStatus(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"status": "error",
+			"error": gin.H{
+				"code":    "INVALID_ID",
+				"message": "Invalid ID format",
+			},
+		})
 		return
 	}
 
@@ -129,14 +180,29 @@ func (c *TransactionController) UpdateStatus(ctx *gin.Context) {
 	}
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"status": "error",
+			"error": gin.H{
+				"code":    "INVALID_INPUT",
+				"message": err.Error(),
+			},
+		})
 		return
 	}
 
 	tx, err := c.service.UpdateStatus(uint(id), req.Status, req.Notes)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"status": "error",
+			"error": gin.H{
+				"code":    "INTERNAL_SERVER_ERROR",
+				"message": err.Error(),
+			},
+		})
 		return
 	}
-	ctx.JSON(http.StatusOK, tx)
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data":   tx,
+	})
 }

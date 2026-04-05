@@ -26,7 +26,7 @@ const docTemplate = `{
     "paths": {
         "/items": {
             "get": {
-                "description": "Get a list of all inventory items with optional filtering.",
+                "description": "Get a list of all inventory items with optional filtering and pagination.",
                 "consumes": [
                     "application/json"
                 ],
@@ -43,25 +43,31 @@ const docTemplate = `{
                         "description": "Item filter (name, sku, category)",
                         "name": "filter",
                         "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.Item"
-                            }
+                            "$ref": "#/definitions/models.PaginatedResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -93,25 +99,19 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.Item"
+                            "$ref": "#/definitions/models.SuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -143,25 +143,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Item"
+                            "$ref": "#/definitions/models.SuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -200,25 +194,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Item"
+                            "$ref": "#/definitions/models.SuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -248,28 +236,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.SuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -300,25 +279,31 @@ const docTemplate = `{
                         "description": "Transaction status (CREATED, DRAFT, IN_PROGRESS, DONE, CANCELLED)",
                         "name": "status",
                         "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.Transaction"
-                            }
+                            "$ref": "#/definitions/models.PaginatedResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -352,25 +337,19 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.Transaction"
+                            "$ref": "#/definitions/models.SuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -404,25 +383,19 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.Transaction"
+                            "$ref": "#/definitions/models.SuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -463,25 +436,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Transaction"
+                            "$ref": "#/definitions/models.SuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -489,6 +456,32 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "models.ErrorDetail": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "INVALID_INPUT"
+                },
+                "details": {},
+                "message": {
+                    "type": "string",
+                    "example": "Validation failed"
+                }
+            }
+        },
+        "models.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "$ref": "#/definitions/models.ErrorDetail"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "error"
+                }
+            }
+        },
         "models.Item": {
             "type": "object",
             "required": [
@@ -531,98 +524,49 @@ const docTemplate = `{
                 }
             }
         },
-        "models.Transaction": {
+        "models.MetaData": {
             "type": "object",
             "properties": {
-                "created_at": {
-                    "type": "string"
+                "current_page": {
+                    "type": "integer",
+                    "example": 1
                 },
-                "id": {
-                    "type": "integer"
+                "limit": {
+                    "type": "integer",
+                    "example": 5
                 },
-                "item": {
-                    "$ref": "#/definitions/models.Item"
+                "total_pages": {
+                    "type": "integer",
+                    "example": 20
                 },
-                "item_id": {
-                    "type": "integer"
-                },
-                "logs": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.TransactionLog"
-                    }
-                },
-                "notes": {
-                    "type": "string"
-                },
-                "quantity": {
-                    "type": "integer"
-                },
-                "reference_id": {
-                    "description": "Customer or Supplier Name",
-                    "type": "string"
+                "total_records": {
+                    "type": "integer",
+                    "example": 100
+                }
+            }
+        },
+        "models.PaginatedResponse": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "meta": {
+                    "$ref": "#/definitions/models.MetaData"
                 },
                 "status": {
-                    "$ref": "#/definitions/models.TransactionStatus"
-                },
-                "type": {
-                    "$ref": "#/definitions/models.TransactionType"
-                },
-                "updated_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "success"
                 }
             }
         },
-        "models.TransactionLog": {
+        "models.SuccessResponse": {
             "type": "object",
             "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "from_status": {
-                    "$ref": "#/definitions/models.TransactionStatus"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "notes": {
-                    "type": "string"
-                },
-                "to_status": {
-                    "$ref": "#/definitions/models.TransactionStatus"
-                },
-                "transaction_id": {
-                    "type": "integer"
+                "data": {},
+                "status": {
+                    "type": "string",
+                    "example": "success"
                 }
             }
-        },
-        "models.TransactionStatus": {
-            "type": "string",
-            "enum": [
-                "CREATED",
-                "DRAFT",
-                "IN_PROGRESS",
-                "DONE",
-                "CANCELLED"
-            ],
-            "x-enum-varnames": [
-                "STATUS_CREATED",
-                "STATUS_DRAFT",
-                "STATUS_IN_PROGRESS",
-                "STATUS_DONE",
-                "STATUS_CANCELLED"
-            ]
-        },
-        "models.TransactionType": {
-            "type": "string",
-            "enum": [
-                "STOCK_IN",
-                "STOCK_OUT"
-            ],
-            "x-enum-varnames": [
-                "STOCK_IN",
-                "STOCK_OUT"
-            ]
         }
     }
 }`

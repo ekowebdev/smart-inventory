@@ -74,6 +74,16 @@ function EditItemModal({ item, onClose }) {
                 />
               </div>
               <div className="form-field">
+                <label className="form-label">SKU Code (Read-Only)</label>
+                <input
+                  type="text"
+                  className="input-standard"
+                  style={{ background: 'rgba(255, 255, 255, 0.05)', cursor: 'not-allowed', color: 'var(--text-muted)' }}
+                  value={formData.sku}
+                  disabled
+                />
+              </div>
+              <div className="form-field">
                 <label className="form-label">Item Name</label>
                 <input
                   type="text"
@@ -82,16 +92,6 @@ function EditItemModal({ item, onClose }) {
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
                 {errors.name && <span className="error-text">{errors.name}</span>}
-              </div>
-              <div className="form-field">
-                <label className="form-label">SKU Code</label>
-                <input
-                  type="text"
-                  className={`input-standard ${errors.sku ? 'input-error' : ''}`}
-                  value={formData.sku}
-                  onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-                />
-                {errors.sku && <span className="error-text">{errors.sku}</span>}
               </div>
               <div className="form-field">
                 <label className="form-label">Price / Unit (USD)</label>

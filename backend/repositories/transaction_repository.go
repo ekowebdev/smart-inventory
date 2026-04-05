@@ -7,7 +7,7 @@ import (
 )
 
 type TransactionRepository interface {
-	GetAll(txType string, status string) ([]models.Transaction, error)
+	GetAll(txType string, status string, page int, limit int) ([]models.Transaction, int64, error)
 	GetByID(id uint) (models.Transaction, error)
 	Create(transaction models.Transaction) (models.Transaction, error)
 	UpdateStatus(id uint, status models.TransactionStatus) (models.Transaction, error)
@@ -22,8 +22,10 @@ func NewTransactionRepository(db *gorm.DB) TransactionRepository {
 	return &transactionRepository{db}
 }
 
-func (r *transactionRepository) GetAll(txType string, status string) ([]models.Transaction, error) {
+func (r *transactionRepository) GetAll(txType string, status string, page int, limit int) ([]models.Transaction, int64, error) {
 	var transactions []models.Transaction
+	var totalRecords int64
+
 	query := r.db.Preload("Item").Preload("Logs")
 	if txType != "" {
 		query = query.Where("type = ?", txType)
@@ -31,8 +33,17 @@ func (r *transactionRepository) GetAll(txType string, status string) ([]models.T
 	if status != "" {
 		query = query.Where("status = ?", status)
 	}
-	err := query.Find(&transactions).Error
-	return transactions, err
+
+	// Get total records first
+	if err := query.Model(&models.Transaction{}).Count(&totalRecords).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// Apply pagination
+	offset := (page - 1) * limit
+	err := query.Order("created_at DESC").Limit(limit).Offset(offset).Find(&transactions).Error
+
+	return transactions, totalRecords, err
 }
 
 func (r *transactionRepository) GetByID(id uint) (models.Transaction, error) {

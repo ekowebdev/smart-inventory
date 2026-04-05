@@ -12,7 +12,7 @@ type Item struct {
 	UpdatedAt      time.Time      `json:"updated_at"`
 	DeletedAt      gorm.DeletedAt `gorm:"index" json:"-"`
 	Name           string         `gorm:"type:varchar(100);not null" json:"name" binding:"required,min=3"`
-	SKU            string         `gorm:"type:varchar(50);unique;not null" json:"sku" binding:"required,alphanum"`
+	SKU            string         `gorm:"type:varchar(50);unique;not null" json:"sku" binding:"required"`
 	Description    string         `gorm:"type:text" json:"description"`
 	PhysicalStock  int            `gorm:"default:0" json:"physical_stock"`
 	AvailableStock int            `gorm:"default:0" json:"available_stock"`

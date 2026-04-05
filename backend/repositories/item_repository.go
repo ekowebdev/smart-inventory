@@ -7,7 +7,7 @@ import (
 )
 
 type ItemRepository interface {
-	GetAll(filter string) ([]models.Item, error)
+	GetAll(filter string, page int, limit int) ([]models.Item, int64, error)
 	GetByID(id uint) (models.Item, error)
 	Create(item models.Item) (models.Item, error)
 	Update(id uint, item models.Item) (models.Item, error)
@@ -22,16 +22,27 @@ func NewItemRepository(db *gorm.DB) ItemRepository {
 	return &itemRepository{db}
 }
 
-func (r *itemRepository) GetAll(filter string) ([]models.Item, error) {
+func (r *itemRepository) GetAll(filter string, page int, limit int) ([]models.Item, int64, error) {
 	var items []models.Item
+	var totalRecords int64
+
 	query := r.db.Model(&models.Item{})
 	if filter != "" {
 		// Filter by Name, SKU, Category, OR Customer/Reference from Transactions
 		query = query.Where("items.name ILIKE ? OR items.sku ILIKE ? OR items.category ILIKE ? OR items.id IN (SELECT item_id FROM transactions WHERE reference_id ILIKE ?)", 
 			"%"+filter+"%", "%"+filter+"%", "%"+filter+"%", "%"+filter+"%")
 	}
-	err := query.Find(&items).Error
-	return items, err
+
+	// Get total records first
+	if err := query.Count(&totalRecords).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// Apply pagination
+	offset := (page - 1) * limit
+	err := query.Order("items.created_at DESC").Limit(limit).Offset(offset).Find(&items).Error
+
+	return items, totalRecords, err
 }
 
 func (r *itemRepository) GetByID(id uint) (models.Item, error) {
@@ -50,7 +61,7 @@ func (r *itemRepository) Update(id uint, item models.Item) (models.Item, error) 
 	if err := r.db.First(&existingItem, id).Error; err != nil {
 		return existingItem, err
 	}
-	err := r.db.Model(&existingItem).Updates(item).Error
+	err := r.db.Model(&existingItem).Omit("sku").Updates(item).Error
 	return existingItem, err
 }
 

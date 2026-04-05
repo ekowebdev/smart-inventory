@@ -325,5 +325,83 @@ body {
 .status-cancelled, .status-error { background: rgba(239, 68, 68, 0.1); color: var(--accent-error); border: 1px solid rgba(239, 68, 68, 0.2); }
 .status-created, .status-info { background: rgba(99, 102, 241, 0.1); color: var(--primary); border: 1px solid rgba(99, 102, 241, 0.2); }
 
-.animate-fade-in { animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+/* Pagination Ultra-Minimalist (Right-Aligned) */
+.pagination-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; /* Align elements to the right internally */
+  gap: 0.35rem;
+  margin-top: 1.5rem;
+  padding: 0.25rem 0;
+  background: transparent; /* No background for extreme minimalism */
+  backdrop-filter: none;
+  border: none;
+  border-radius: 0;
+  width: 100%; /* Take full width to allow internal alignment */
+  box-shadow: none;
+}
+
+.pagination-group {
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+}
+
+.pagination-btn {
+  all: unset;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-weight: 700;
+  font-size: 0.75rem;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.1;
+  cursor: not-allowed;
+}
+
+.pagination-btn.active {
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--primary);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.pagination-info {
+  margin-left: 1rem;
+  font-size: 0.6rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.6;
+}
+
+.pagination-dot {
+  color: var(--text-muted);
+  opacity: 0.3;
+  padding: 0 1px;
+  font-size: 0.6rem;
+}
+
+@media (max-width: 640px) {
+  .pagination-container {
+    justify-content: center;
+    padding: 1rem 0;
+  }
+  .pagination-info {
+    display: none;
+  }
+}

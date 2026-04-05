@@ -2,6 +2,9 @@ package services
 
 import (
 	"errors"
+	"math"
+	"strconv"
+
 	"smart-inventory-backend/models"
 	"smart-inventory-backend/repositories"
 
@@ -12,7 +15,7 @@ type TransactionService interface {
 	CreateStockIn(itemID uint, qty int, refID string, notes string) (models.Transaction, error)
 	CreateStockOut(itemID uint, qty int, refID string, notes string) (models.Transaction, error)
 	UpdateStatus(id uint, newStatus models.TransactionStatus, notes string) (models.Transaction, error)
-	GetTransactions(txType string, status string) ([]models.Transaction, error)
+	GetTransactions(txType string, status string, page string, limit string) (map[string]interface{}, error)
 }
 
 type transactionService struct {
@@ -181,6 +184,34 @@ func (s *transactionService) UpdateStatus(id uint, newStatus models.TransactionS
 	return updatedTx, tx.Commit().Error
 }
 
-func (s *transactionService) GetTransactions(txType string, status string) ([]models.Transaction, error) {
-	return s.repo.GetAll(txType, status)
+func (s *transactionService) GetTransactions(txType string, status string, page string, limit string) (map[string]interface{}, error) {
+	p, _ := strconv.Atoi(page)
+	if p <= 0 {
+		p = 1
+	}
+
+	l, _ := strconv.Atoi(limit)
+	if l <= 0 {
+		l = 10
+	}
+	if l > 100 {
+		l = 100
+	}
+
+	transactions, totalRecords, err := s.repo.GetAll(txType, status, p, l)
+	if err != nil {
+		return nil, err
+	}
+
+	totalPages := int(math.Ceil(float64(totalRecords) / float64(l)))
+
+	return map[string]interface{}{
+		"data": transactions,
+		"meta": map[string]interface{}{
+			"current_page":  p,
+			"limit":         l,
+			"total_records": totalRecords,
+			"total_pages":   totalPages,
+		},
+	}, nil
 }

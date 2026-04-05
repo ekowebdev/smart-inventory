@@ -1,20 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, CheckCircle, XCircle, Play, Filter, RotateCcw, Eye } from 'lucide-react';
+import { Clock, CheckCircle, XCircle, Play, Filter, RotateCcw, Eye, Package, ListChecks } from 'lucide-react';
 import { useInventoryStore } from '../store/useInventoryStore';
 import StatusUpdateModal from './StatusUpdateModal';
 import TransactionReportModal from './TransactionReportModal';
+import Pagination from './Pagination';
 
 function TransactionHistory() {
-  const { transactions, fetchTransactions } = useInventoryStore();
+  const { 
+    transactions, 
+    metaTransactions, 
+    txType,
+    txStatus,
+    txPage,
+    txLimit,
+    setTxType,
+    setTxStatus,
+    setTxPage,
+    setTxLimit 
+  } = useInventoryStore();
+  
   const [selectedTx, setSelectedTx] = useState(null);
   const [targetStatus, setTargetStatus] = useState(null);
   const [reportTx, setReportTx] = useState(null);
-  const [typeFilter, setTypeFilter] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-
-  useEffect(() => {
-    fetchTransactions(typeFilter, statusFilter);
-  }, [typeFilter, statusFilter, fetchTransactions]);
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -39,59 +46,95 @@ function TransactionHistory() {
     setTargetStatus(nextStatus);
   };
 
-  const sortedTransactions = [...transactions].reverse();
+  const handlePageChange = (page) => {
+    setTxPage(page);
+  };
+
+  const handlePageSizeChange = (e) => {
+    setTxLimit(Number(e.target.value));
+  };
 
   return (
     <div className="glass-card" style={{ padding: '0', overflow: 'hidden' }}>
       <div className="flex-between" style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border)', background: 'rgba(30, 41, 59, 0.4)' }}>
-        <h3 style={{ fontSize: '1.25rem', fontWeight: '700' }}>Transaction Ledger</h3>
-        <div className="flex-center" style={{ gap: '10px' }}>
-          <div className="flex-center" style={{ gap: '6px' }}>
-            <Filter size={14} style={{ color: 'var(--text-muted)' }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{ padding: '0.5rem', background: 'rgba(59, 130, 246, 0.1)', color: '#3B82F6', borderRadius: '0.75rem' }}>
+            <ListChecks size={20} />
+          </div>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: '700' }}>Transaction Ledger</h3>
+        </div>
+
+        <div className="flex-center" style={{ gap: '15px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+            <span>Show</span>
+            <select 
+              value={txLimit} 
+              onChange={handlePageSizeChange}
+              style={{ 
+                background: 'rgba(255,255,255,0.05)', 
+                border: '1px solid var(--border)', 
+                color: 'white', 
+                borderRadius: '0.5rem',
+                padding: '0.25rem 0.5rem',
+                outline: 'none',
+                fontSize: '0.85rem'
+              }}
+            >
+              <option value="5" style={{ background: '#1e293b' }}>5</option>
+              <option value="10" style={{ background: '#1e293b' }}>10</option>
+              <option value="20" style={{ background: '#1e293b' }}>20</option>
+              <option value="50" style={{ background: '#1e293b' }}>50</option>
+            </select>
+          </div>
+
+          <div className="flex-center" style={{ gap: '10px' }}>
+            <div className="flex-center" style={{ gap: '6px' }}>
+              <Filter size={14} style={{ color: 'var(--text-muted)' }} />
+              <select
+                className="input-standard"
+                style={{ padding: '6px 12px', fontSize: '0.85rem', width: 'auto' }}
+                value={txType}
+                onChange={(e) => setTxType(e.target.value)}
+              >
+                <option value="">All Types</option>
+                <option value="STOCK_IN">Stock In</option>
+                <option value="STOCK_OUT">Stock Out</option>
+              </select>
+            </div>
             <select
               className="input-standard"
               style={{ padding: '6px 12px', fontSize: '0.85rem', width: 'auto' }}
-              value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
+              value={txStatus}
+              onChange={(e) => setTxStatus(e.target.value)}
             >
-              <option value="">All Types</option>
-              <option value="STOCK_IN">Stock In</option>
-              <option value="STOCK_OUT">Stock Out</option>
+              <option value="">All Status</option>
+              <option value="CREATED">Created</option>
+              <option value="IN_PROGRESS">In Progress</option>
+              <option value="DONE">Done</option>
+              <option value="CANCELLED">Cancelled</option>
             </select>
+            {(txType || txStatus) && (
+              <button
+                onClick={() => { setTxType(''); setTxStatus(''); }}
+                title="Reset Filters"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--text-muted)',
+                  padding: '8px',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  transition: 'all 0.2s',
+                }}
+                onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'}
+                onMouseOut={(e) => e.currentTarget.style.background = 'none'}
+              >
+                <RotateCcw size={16} />
+              </button>
+            )}
           </div>
-          <select
-            className="input-standard"
-            style={{ padding: '6px 12px', fontSize: '0.85rem', width: 'auto' }}
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value="">All Status</option>
-            <option value="CREATED">Created</option>
-            <option value="IN_PROGRESS">In Progress</option>
-            <option value="DONE">Done</option>
-            <option value="CANCELLED">Cancelled</option>
-          </select>
-          {(typeFilter || statusFilter) && (
-            <button
-              onClick={() => { setTypeFilter(''); setStatusFilter(''); }}
-              title="Reset Filters"
-              style={{
-                background: 'none',
-                border: 'none',
-                color: 'var(--text-muted)',
-                padding: '8px',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                transition: 'all 0.2s',
-              }}
-              onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'}
-              onMouseOut={(e) => e.currentTarget.style.background = 'none'}
-            >
-              <RotateCcw size={16} />
-            </button>
-          )}
         </div>
       </div>
 
@@ -107,13 +150,13 @@ function TransactionHistory() {
             </tr>
           </thead>
           <tbody>
-            {sortedTransactions.length === 0 ? (
+            {!Array.isArray(transactions) || transactions.length === 0 ? (
               <tr>
                 <td colSpan="5" style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
                   No transaction history recorded yet. Add items and start stock flows.
                 </td>
               </tr>
-            ) : sortedTransactions.map((tx) => (
+            ) : transactions.map((tx) => (
               <tr key={tx.id}>
                 <td>
                   <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -187,6 +230,14 @@ function TransactionHistory() {
             ))}
           </tbody>
         </table>
+      </div>
+
+      <div style={{ padding: '1rem 1.5rem' }}>
+        <Pagination 
+          currentPage={metaTransactions.current_page || 1} 
+          totalPages={metaTransactions.total_pages || 1} 
+          onPageChange={handlePageChange} 
+        />
       </div>
 
       {selectedTx && (

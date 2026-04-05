@@ -20,22 +20,37 @@ func NewItemController(service services.ItemService) *ItemController {
 
 // GetAll godoc
 // @Summary List all items
-// @Description Get a list of all inventory items with optional filtering.
+// @Description Get a list of all inventory items with optional filtering and pagination.
 // @Tags items
 // @Accept  json
 // @Produce  json
 // @Param   filter     query    string  false  "Item filter (name, sku, category)"
-// @Success 200 {array} models.Item
-// @Failure 500 {object} map[string]string
+// @Param   page       query    int     false  "Page number"
+// @Param   limit      query    int     false  "Items per page"
+// @Success 200 {object} models.PaginatedResponse
+// @Failure 500 {object} models.ErrorResponse
 // @Router /items [get]
 func (c *ItemController) GetAll(ctx *gin.Context) {
 	filter := ctx.Query("filter")
-	items, err := c.service.GetAllItems(filter)
+	page := ctx.Query("page")
+	limit := ctx.Query("limit")
+
+	result, err := c.service.GetAllItems(filter, page, limit)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"status": "error",
+			"error": gin.H{
+				"code":    "INTERNAL_SERVER_ERROR",
+				"message": err.Error(),
+			},
+		})
 		return
 	}
-	ctx.JSON(http.StatusOK, items)
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data":   result["data"],
+		"meta":   result["meta"],
+	})
 }
 
 // GetByID godoc
@@ -45,22 +60,37 @@ func (c *ItemController) GetAll(ctx *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param   id     path    int     true  "Item ID"
-// @Success 200 {object} models.Item
-// @Failure 400 {object} map[string]string
-// @Failure 404 {object} map[string]string
+// @Success 200 {object} models.SuccessResponse
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 404 {object} models.ErrorResponse
 // @Router /items/{id} [get]
 func (c *ItemController) GetByID(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"status": "error",
+			"error": gin.H{
+				"code":    "INVALID_ID",
+				"message": "Invalid ID format",
+			},
+		})
 		return
 	}
 	item, err := c.service.GetItemByID(uint(id))
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": "Item not found"})
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"status": "error",
+			"error": gin.H{
+				"code":    "NOT_FOUND",
+				"message": "Item not found",
+			},
+		})
 		return
 	}
-	ctx.JSON(http.StatusOK, item)
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data":   item,
+	})
 }
 
 // Create godoc
@@ -70,22 +100,37 @@ func (c *ItemController) GetByID(ctx *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param   item     body    models.Item     true  "Item Object"
-// @Success 201 {object} models.Item
-// @Failure 400 {object} map[string]string
-// @Failure 500 {object} map[string]string
+// @Success 201 {object} models.SuccessResponse
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
 // @Router /items [post]
 func (c *ItemController) Create(ctx *gin.Context) {
 	var item models.Item
 	if err := ctx.ShouldBindJSON(&item); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"status": "error",
+			"error": gin.H{
+				"code":    "INVALID_INPUT",
+				"message": err.Error(),
+			},
+		})
 		return
 	}
 	newItem, err := c.service.CreateItem(item)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"status": "error",
+			"error": gin.H{
+				"code":    "INTERNAL_SERVER_ERROR",
+				"message": err.Error(),
+			},
+		})
 		return
 	}
-	ctx.JSON(http.StatusCreated, newItem)
+	ctx.JSON(http.StatusCreated, gin.H{
+		"status": "success",
+		"data":   newItem,
+	})
 }
 
 // Update godoc
@@ -96,27 +141,48 @@ func (c *ItemController) Create(ctx *gin.Context) {
 // @Produce  json
 // @Param   id     path    int     true  "Item ID"
 // @Param   item     body    models.Item     true  "Item Object"
-// @Success 200 {object} models.Item
-// @Failure 400 {object} map[string]string
-// @Failure 500 {object} map[string]string
+// @Success 200 {object} models.SuccessResponse
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
 // @Router /items/{id} [put]
 func (c *ItemController) Update(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"status": "error",
+			"error": gin.H{
+				"code":    "INVALID_ID",
+				"message": "Invalid ID format",
+			},
+		})
 		return
 	}
 	var item models.Item
 	if err := ctx.ShouldBindJSON(&item); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"status": "error",
+			"error": gin.H{
+				"code":    "INVALID_INPUT",
+				"message": err.Error(),
+			},
+		})
 		return
 	}
 	updatedItem, err := c.service.UpdateItem(uint(id), item)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"status": "error",
+			"error": gin.H{
+				"code":    "INTERNAL_SERVER_ERROR",
+				"message": err.Error(),
+			},
+		})
 		return
 	}
-	ctx.JSON(http.StatusOK, updatedItem)
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data":   updatedItem,
+	})
 }
 
 // Delete godoc
@@ -126,19 +192,34 @@ func (c *ItemController) Update(ctx *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param   id     path    int     true  "Item ID"
-// @Success 200 {object} map[string]string
-// @Failure 400 {object} map[string]string
-// @Failure 500 {object} map[string]string
+// @Success 200 {object} models.SuccessResponse
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
 // @Router /items/{id} [delete]
 func (c *ItemController) Delete(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"status": "error",
+			"error": gin.H{
+				"code":    "INVALID_ID",
+				"message": "Invalid ID format",
+			},
+		})
 		return
 	}
 	if err := c.service.DeleteItem(uint(id)); err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"status": "error",
+			"error": gin.H{
+				"code":    "INTERNAL_SERVER_ERROR",
+				"message": err.Error(),
+			},
+		})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"message": "Item deleted"})
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "Item deleted",
+	})
 }
