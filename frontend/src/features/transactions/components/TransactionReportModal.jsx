@@ -1,19 +1,10 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { X, Printer, FileText, CheckCircle, Package, Calendar, ClipboardList } from 'lucide-react';
+import { formatReadableDate } from '../../../utils/dateFormatter';
 
 function TransactionReportModal({ transaction, onClose }) {
   if (!transaction) return null;
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
 
   return createPortal(
     <div className="modal-overlay" style={{ backdropFilter: 'blur(12px)' }}>
@@ -196,7 +187,7 @@ function TransactionReportModal({ transaction, onClose }) {
             </div>
             <div style={{ textAlign: 'right' }}>
               <p style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: '#94a3b8', margin: '0 0 6px', fontWeight: '800' }}>Issuance Date</p>
-              <p style={{ margin: '0', fontSize: '1rem', fontWeight: '700', color: '#334155' }}>{formatDate(transaction.updated_at)}</p>
+              <p style={{ margin: '0', fontSize: '1rem', fontWeight: '700', color: '#334155' }}>{formatReadableDate(transaction.updated_at)}</p>
             </div>
           </div>
 
@@ -272,7 +263,7 @@ function TransactionReportModal({ transaction, onClose }) {
                   <div style={{ flex: 1, paddingBottom: '0.5rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <span style={{ fontSize: '0.9rem', fontWeight: '800', color: '#334155' }}>{log.to_status}</span>
-                      <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: '600' }}>{formatDate(log.created_at)}</span>
+                      <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: '600' }}>{formatReadableDate(log.created_at)}</span>
                     </div>
                     <p style={{ margin: '6px 0 0', fontSize: '0.85rem', color: '#64748b', lineHeight: '1.5' }}>
                       {log.notes || 'Automated status migration recorded by System'}

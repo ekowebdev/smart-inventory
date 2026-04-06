@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { X, Trash2, AlertTriangle } from 'lucide-react';
-import { useInventoryStore } from '../store/useInventoryStore';
+import { useInventoryStore } from '../../../store/useInventoryStore';
 
 function DeleteConfirmModal({ item, onClose }) {
   const { deleteItem, loading, error } = useInventoryStore();

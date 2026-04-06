@@ -35,6 +35,7 @@ func (s *transactionService) CreateStockIn(itemID uint, qty int, refID string, n
 			tx.Rollback()
 		}
 	}()
+	txRepo := s.repo.WithTx(tx)
 
 	transaction := models.Transaction{
 		Type:        models.STOCK_IN,
@@ -45,7 +46,7 @@ func (s *transactionService) CreateStockIn(itemID uint, qty int, refID string, n
 		Notes:       notes,
 	}
 
-	newTx, err := s.repo.Create(transaction)
+	newTx, err := txRepo.Create(transaction)
 	if err != nil {
 		tx.Rollback()
 		return models.Transaction{}, err
@@ -57,7 +58,7 @@ func (s *transactionService) CreateStockIn(itemID uint, qty int, refID string, n
 		ToStatus:      models.STATUS_CREATED,
 		Notes:         "Initial created stock in",
 	}
-	s.repo.CreateLog(log)
+	txRepo.CreateLog(log)
 
 	return newTx, tx.Commit().Error
 }
@@ -69,9 +70,11 @@ func (s *transactionService) CreateStockOut(itemID uint, qty int, refID string, 
 			tx.Rollback()
 		}
 	}()
+	txRepo := s.repo.WithTx(tx)
+	txItemRepo := s.itemRepo.WithTx(tx)
 
 	// Stage 1: Allocation
-	item, err := s.itemRepo.GetByID(itemID)
+	item, err := txItemRepo.GetByID(itemID)
 	if err != nil {
 		tx.Rollback()
 		return models.Transaction{}, err
@@ -84,7 +87,7 @@ func (s *transactionService) CreateStockOut(itemID uint, qty int, refID string, 
 
 	// Reserve Available Stock
 	item.AvailableStock -= qty
-	if _, err := s.itemRepo.Update(itemID, item); err != nil {
+	if _, err := txItemRepo.Update(itemID, item); err != nil {
 		tx.Rollback()
 		return models.Transaction{}, err
 	}
@@ -98,7 +101,7 @@ func (s *transactionService) CreateStockOut(itemID uint, qty int, refID string, 
 		Notes:       notes,
 	}
 
-	newTx, err := s.repo.Create(transaction)
+	newTx, err := txRepo.Create(transaction)
 	if err != nil {
 		tx.Rollback()
 		return models.Transaction{}, err
@@ -110,7 +113,7 @@ func (s *transactionService) CreateStockOut(itemID uint, qty int, refID string, 
 		ToStatus:      models.STATUS_DRAFT,
 		Notes:         "Allocated stock for stock out",
 	}
-	s.repo.CreateLog(log)
+	txRepo.CreateLog(log)
 
 	return newTx, tx.Commit().Error
 }
@@ -122,8 +125,10 @@ func (s *transactionService) UpdateStatus(id uint, newStatus models.TransactionS
 			tx.Rollback()
 		}
 	}()
+	txRepo := s.repo.WithTx(tx)
+	txItemRepo := s.itemRepo.WithTx(tx)
 
-	transaction, err := s.repo.GetByID(id)
+	transaction, err := txRepo.GetByID(id)
 	if err != nil {
 		tx.Rollback()
 		return models.Transaction{}, err
@@ -139,10 +144,10 @@ func (s *transactionService) UpdateStatus(id uint, newStatus models.TransactionS
 		}
 		if newStatus == models.STATUS_DONE {
 			// Finalize Stock In: Update Physical and Available Stock
-			item, _ := s.itemRepo.GetByID(transaction.ItemID)
+			item, _ := txItemRepo.GetByID(transaction.ItemID)
 			item.PhysicalStock += transaction.Quantity
 			item.AvailableStock += transaction.Quantity
-			s.itemRepo.Update(item.ID, item)
+			txItemRepo.Update(item.ID, item)
 		}
 	} else if transaction.Type == models.STOCK_OUT {
 		if oldStatus == models.STATUS_DONE {
@@ -152,22 +157,22 @@ func (s *transactionService) UpdateStatus(id uint, newStatus models.TransactionS
 
 		if newStatus == models.STATUS_DONE {
 			// Finalize Stock Out: Update Physical Stock
-			item, _ := s.itemRepo.GetByID(transaction.ItemID)
+			item, _ := txItemRepo.GetByID(transaction.ItemID)
 			item.PhysicalStock -= transaction.Quantity
-			s.itemRepo.Update(item.ID, item)
+			txItemRepo.Update(item.ID, item)
 		}
 
 		if newStatus == models.STATUS_CANCELLED {
 			// Rollback: Return to Available Stock
 			if oldStatus == models.STATUS_DRAFT || oldStatus == models.STATUS_IN_PROGRESS {
-				item, _ := s.itemRepo.GetByID(transaction.ItemID)
+				item, _ := txItemRepo.GetByID(transaction.ItemID)
 				item.AvailableStock += transaction.Quantity
-				s.itemRepo.Update(item.ID, item)
+				txItemRepo.Update(item.ID, item)
 			}
 		}
 	}
 
-	updatedTx, err := s.repo.UpdateStatus(id, newStatus)
+	updatedTx, err := txRepo.UpdateStatus(id, newStatus)
 	if err != nil {
 		tx.Rollback()
 		return models.Transaction{}, err
@@ -179,7 +184,7 @@ func (s *transactionService) UpdateStatus(id uint, newStatus models.TransactionS
 		ToStatus:      newStatus,
 		Notes:         notes,
 	}
-	s.repo.CreateLog(log)
+	txRepo.CreateLog(log)
 
 	return updatedTx, tx.Commit().Error
 }

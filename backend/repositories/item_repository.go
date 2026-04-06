@@ -7,6 +7,7 @@ import (
 )
 
 type ItemRepository interface {
+	WithTx(tx *gorm.DB) ItemRepository
 	GetAll(filter string, page int, limit int) ([]models.Item, int64, error)
 	GetByID(id uint) (models.Item, error)
 	Create(item models.Item) (models.Item, error)
@@ -20,6 +21,10 @@ type itemRepository struct {
 
 func NewItemRepository(db *gorm.DB) ItemRepository {
 	return &itemRepository{db}
+}
+
+func (r *itemRepository) WithTx(tx *gorm.DB) ItemRepository {
+	return &itemRepository{db: tx}
 }
 
 func (r *itemRepository) GetAll(filter string, page int, limit int) ([]models.Item, int64, error) {

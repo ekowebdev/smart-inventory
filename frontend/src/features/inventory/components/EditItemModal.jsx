@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import { X, Save, Settings2, Box, Info } from 'lucide-react';
-import { useInventoryStore } from '../store/useInventoryStore';
+import { useInventoryStore } from '../../../store/useInventoryStore';
 import { useEffect } from 'react';
 
 function EditItemModal({ item, onClose }) {

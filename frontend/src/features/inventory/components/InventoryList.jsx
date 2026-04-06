@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit3, Trash2, ArrowUpRight, ArrowDownRight, Layers } from 'lucide-react';
-import { useInventoryStore } from '../store/useInventoryStore';
-import TransactionModal from './TransactionModal';
+import { useInventoryStore } from '../../../store/useInventoryStore';
+import TransactionModal from '../../transactions/components/TransactionModal';
 import AddItemModal from './AddItemModal';
 import EditItemModal from './EditItemModal';
 import DeleteConfirmModal from './DeleteConfirmModal';
-import Pagination from './Pagination';
+import Pagination from '../../../components/Pagination';
 
 function InventoryList() {
   const { 

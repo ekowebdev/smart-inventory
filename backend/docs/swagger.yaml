@@ -1,6 +1,6 @@
 basePath: /api/v1
 definitions:
-  models.ErrorDetail:
+  dto.ErrorDetail:
     properties:
       code:
         example: INVALID_INPUT
@@ -10,12 +10,43 @@ definitions:
         example: Validation failed
         type: string
     type: object
-  models.ErrorResponse:
+  dto.ErrorResponse:
     properties:
       error:
-        $ref: '#/definitions/models.ErrorDetail'
+        $ref: '#/definitions/dto.ErrorDetail'
       status:
         example: error
+        type: string
+    type: object
+  dto.MetaData:
+    properties:
+      current_page:
+        example: 1
+        type: integer
+      limit:
+        example: 5
+        type: integer
+      total_pages:
+        example: 20
+        type: integer
+      total_records:
+        example: 100
+        type: integer
+    type: object
+  dto.PaginatedResponse:
+    properties:
+      data: {}
+      meta:
+        $ref: '#/definitions/dto.MetaData'
+      status:
+        example: success
+        type: string
+    type: object
+  dto.SuccessResponse:
+    properties:
+      data: {}
+      status:
+        example: success
         type: string
     type: object
   models.Item:
@@ -46,37 +77,6 @@ definitions:
     - category
     - name
     - sku
-    type: object
-  models.MetaData:
-    properties:
-      current_page:
-        example: 1
-        type: integer
-      limit:
-        example: 5
-        type: integer
-      total_pages:
-        example: 20
-        type: integer
-      total_records:
-        example: 100
-        type: integer
-    type: object
-  models.PaginatedResponse:
-    properties:
-      data: {}
-      meta:
-        $ref: '#/definitions/models.MetaData'
-      status:
-        example: success
-        type: string
-    type: object
-  models.SuccessResponse:
-    properties:
-      data: {}
-      status:
-        example: success
-        type: string
     type: object
 host: localhost:8080
 info:
@@ -116,11 +116,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.PaginatedResponse'
+            $ref: '#/definitions/dto.PaginatedResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
       summary: List all items
       tags:
       - items
@@ -141,15 +141,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.SuccessResponse'
+            $ref: '#/definitions/dto.SuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
       summary: Create new item
       tags:
       - items
@@ -170,15 +170,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.SuccessResponse'
+            $ref: '#/definitions/dto.SuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
       summary: Delete item
       tags:
       - items
@@ -198,15 +198,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.SuccessResponse'
+            $ref: '#/definitions/dto.SuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
       summary: Get item by ID
       tags:
       - items
@@ -232,15 +232,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.SuccessResponse'
+            $ref: '#/definitions/dto.SuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
       summary: Update item
       tags:
       - items
@@ -273,11 +273,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.PaginatedResponse'
+            $ref: '#/definitions/dto.PaginatedResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
       summary: List transactions
       tags:
       - transactions
@@ -305,15 +305,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.SuccessResponse'
+            $ref: '#/definitions/dto.SuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
       summary: Update transaction status
       tags:
       - transactions
@@ -336,15 +336,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.SuccessResponse'
+            $ref: '#/definitions/dto.SuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
       summary: Create Stock In
       tags:
       - transactions
@@ -367,15 +367,15 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.SuccessResponse'
+            $ref: '#/definitions/dto.SuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/dto.ErrorResponse'
       summary: Create Stock Out
       tags:
       - transactions

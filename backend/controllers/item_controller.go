@@ -27,8 +27,8 @@ func NewItemController(service services.ItemService) *ItemController {
 // @Param   filter     query    string  false  "Item filter (name, sku, category)"
 // @Param   page       query    int     false  "Page number"
 // @Param   limit      query    int     false  "Items per page"
-// @Success 200 {object} models.PaginatedResponse
-// @Failure 500 {object} models.ErrorResponse
+// @Success 200 {object} dto.PaginatedResponse
+// @Failure 500 {object} dto.ErrorResponse
 // @Router /items [get]
 func (c *ItemController) GetAll(ctx *gin.Context) {
 	filter := ctx.Query("filter")
@@ -60,9 +60,9 @@ func (c *ItemController) GetAll(ctx *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param   id     path    int     true  "Item ID"
-// @Success 200 {object} models.SuccessResponse
-// @Failure 400 {object} models.ErrorResponse
-// @Failure 404 {object} models.ErrorResponse
+// @Success 200 {object} dto.SuccessResponse
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 404 {object} dto.ErrorResponse
 // @Router /items/{id} [get]
 func (c *ItemController) GetByID(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
@@ -100,9 +100,9 @@ func (c *ItemController) GetByID(ctx *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param   item     body    models.Item     true  "Item Object"
-// @Success 201 {object} models.SuccessResponse
-// @Failure 400 {object} models.ErrorResponse
-// @Failure 500 {object} models.ErrorResponse
+// @Success 201 {object} dto.SuccessResponse
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
 // @Router /items [post]
 func (c *ItemController) Create(ctx *gin.Context) {
 	var item models.Item
@@ -141,9 +141,9 @@ func (c *ItemController) Create(ctx *gin.Context) {
 // @Produce  json
 // @Param   id     path    int     true  "Item ID"
 // @Param   item     body    models.Item     true  "Item Object"
-// @Success 200 {object} models.SuccessResponse
-// @Failure 400 {object} models.ErrorResponse
-// @Failure 500 {object} models.ErrorResponse
+// @Success 200 {object} dto.SuccessResponse
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
 // @Router /items/{id} [put]
 func (c *ItemController) Update(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
@@ -192,9 +192,9 @@ func (c *ItemController) Update(ctx *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param   id     path    int     true  "Item ID"
-// @Success 200 {object} models.SuccessResponse
-// @Failure 400 {object} models.ErrorResponse
-// @Failure 500 {object} models.ErrorResponse
+// @Success 200 {object} dto.SuccessResponse
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
 // @Router /items/{id} [delete]
 func (c *ItemController) Delete(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))

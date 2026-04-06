@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Clock, CheckCircle, XCircle, Play, Filter, RotateCcw, Eye, Package, ListChecks } from 'lucide-react';
-import { useInventoryStore } from '../store/useInventoryStore';
+import { useInventoryStore } from '../../../store/useInventoryStore';
 import StatusUpdateModal from './StatusUpdateModal';
 import TransactionReportModal from './TransactionReportModal';
-import Pagination from './Pagination';
+import Pagination from '../../../components/Pagination';
 
 function TransactionHistory() {
   const { 

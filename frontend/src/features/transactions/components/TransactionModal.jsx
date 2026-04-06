@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import { X, Send, AlertTriangle, CheckCircle } from 'lucide-react';
-import { useInventoryStore } from '../store/useInventoryStore';
+import { useInventoryStore } from '../../../store/useInventoryStore';
 import { useEffect } from 'react';
 
 function TransactionModal({ item, type, onClose }) {

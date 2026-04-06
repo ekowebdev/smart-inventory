@@ -62,6 +62,7 @@ smart-inventory/
 │   ├── database/       # DB Connection & Seeding
 │   │   └── seeder/     # Modular & Idempotent data seeding
 │   ├── routes/         # Modular endpoint definitions
+│   ├── dto/            # Data Transfer Objects (API Response formatting)
 │   ├── models/         # GORM Models & Schemas
 │   ├── services/       # Business Logic (Stock-out allocation logic)
 |   ├── repositories/   # GORM Database Operations (Omit logic for immutable fields)

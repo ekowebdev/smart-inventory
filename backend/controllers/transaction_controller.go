@@ -28,8 +28,8 @@ func NewTransactionController(service services.TransactionService) *TransactionC
 // @Param   status   query    string  false  "Transaction status (CREATED, DRAFT, IN_PROGRESS, DONE, CANCELLED)"
 // @Param   page     query    int     false  "Page number"
 // @Param   limit    query    int     false  "Items per page"
-// @Success 200 {object} models.PaginatedResponse
-// @Failure 500 {object} models.ErrorResponse
+// @Success 200 {object} dto.PaginatedResponse
+// @Failure 500 {object} dto.ErrorResponse
 // @Router /transactions [get]
 func (c *TransactionController) GetTransactions(ctx *gin.Context) {
 	txType := ctx.Query("type")
@@ -62,9 +62,9 @@ func (c *TransactionController) GetTransactions(ctx *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param   request     body    object     true  "Stock In Request (item_id, quantity, reference_id, notes)"
-// @Success 201 {object} models.SuccessResponse
-// @Failure 400 {object} models.ErrorResponse
-// @Failure 500 {object} models.ErrorResponse
+// @Success 201 {object} dto.SuccessResponse
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
 // @Router /transactions/stock-in [post]
 func (c *TransactionController) CreateStockIn(ctx *gin.Context) {
 	var req struct {
@@ -109,9 +109,9 @@ func (c *TransactionController) CreateStockIn(ctx *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param   request     body    object     true  "Stock Out Request (item_id, quantity, reference_id, notes)"
-// @Success 201 {object} models.SuccessResponse
-// @Failure 400 {object} models.ErrorResponse
-// @Failure 500 {object} models.ErrorResponse
+// @Success 201 {object} dto.SuccessResponse
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
 // @Router /transactions/stock-out [post]
 func (c *TransactionController) CreateStockOut(ctx *gin.Context) {
 	var req struct {
@@ -157,9 +157,9 @@ func (c *TransactionController) CreateStockOut(ctx *gin.Context) {
 // @Produce  json
 // @Param   id     path    int     true  "Transaction ID"
 // @Param   request     body    object     true  "Status Update Request (status, notes)"
-// @Success 200 {object} models.SuccessResponse
-// @Failure 400 {object} models.ErrorResponse
-// @Failure 500 {object} models.ErrorResponse
+// @Success 200 {object} dto.SuccessResponse
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
 // @Router /transactions/{id}/status [put]
 func (c *TransactionController) UpdateStatus(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))

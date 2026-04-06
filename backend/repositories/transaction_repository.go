@@ -7,6 +7,7 @@ import (
 )
 
 type TransactionRepository interface {
+	WithTx(tx *gorm.DB) TransactionRepository
 	GetAll(txType string, status string, page int, limit int) ([]models.Transaction, int64, error)
 	GetByID(id uint) (models.Transaction, error)
 	Create(transaction models.Transaction) (models.Transaction, error)
@@ -20,6 +21,10 @@ type transactionRepository struct {
 
 func NewTransactionRepository(db *gorm.DB) TransactionRepository {
 	return &transactionRepository{db}
+}
+
+func (r *transactionRepository) WithTx(tx *gorm.DB) TransactionRepository {
+	return &transactionRepository{db: tx}
 }
 
 func (r *transactionRepository) GetAll(txType string, status string, page int, limit int) ([]models.Transaction, int64, error) {

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import { X, CheckCircle, AlertTriangle, Play, Save } from 'lucide-react';
-import { useInventoryStore } from '../store/useInventoryStore';
+import { useInventoryStore } from '../../../store/useInventoryStore';
 
 function StatusUpdateModal({ transaction, nextStatus, onClose }) {
   const { updateTxStatus, loading } = useInventoryStore();

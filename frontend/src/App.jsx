@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Package, History, LayoutDashboard, Search, AlertCircle, X } from 'lucide-react';
 import { useInventoryStore } from './store/useInventoryStore';
-import InventoryList from './components/InventoryList';
+import InventoryList from './features/inventory/components/InventoryList';
 import DashboardCards from './components/DashboardCards';
-import TransactionHistory from './components/TransactionHistory';
+import TransactionHistory from './features/transactions/components/TransactionHistory';
 
 function App() {
   const { fetchItems, fetchTransactions, loading, itemFilter, setItemFilter } = useInventoryStore();

@@ -1,4 +1,4 @@
-package models
+package dto
 
 // MetaData represents pagination metadata
 type MetaData struct {
